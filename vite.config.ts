@@ -28,6 +28,7 @@ export default defineConfig(({ isSsrBuild, command }) => ({
     rollupOptions: isSsrBuild
       ? {
           input: "./server/app.ts",
+          external: ['@prisma/client-generated']
         }
       : undefined,
   },
@@ -38,6 +39,7 @@ export default defineConfig(({ isSsrBuild, command }) => ({
   },
   ssr: {
     noExternal: command === "build" ? true : undefined,
+    external: ['@prisma/client-generated']
   },
   plugins: [prismaFixPlugin, reactRouter(), tsconfigPaths()],
 }));
