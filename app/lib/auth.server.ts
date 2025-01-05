@@ -30,7 +30,7 @@ const typedAuthSessionStorage = createTypedSessionStorage({
   schema: cookieSchema,
 })
 
-export async function requireAuth(request: Request) {
+export async function requireAuth({ request }: { request: Request }) {
   const session = await typedAuthSessionStorage.getSession(
     request.headers.get('Cookie')
   )
@@ -52,7 +52,7 @@ export async function requireAuth(request: Request) {
   return user
 }
 
-export async function getUserIdFromRequest(request: Request) {
+export async function getUserIdFromRequest({ request }: { request: Request }) {
   const session = await typedAuthSessionStorage.getSession(
     request.headers.get('Cookie')
   )
@@ -60,7 +60,7 @@ export async function getUserIdFromRequest(request: Request) {
   return userId ?? null
 }
 
-export async function logout(request: Request) {
+export async function logout({ request }: { request: Request }) {
   const session = await typedAuthSessionStorage.getSession(
     request.headers.get('Cookie')
   )
@@ -70,6 +70,23 @@ export async function logout(request: Request) {
       'Set-Cookie': await typedAuthSessionStorage.destroySession(session),
     },
   })
+}
+
+export async function redirectAuthUserToRoom({ userId }: { userId: string }) {
+  const userRoom = await prisma.room.findUnique({
+    where: {
+      ownerId: userId,
+    },
+  })
+
+  // Should never happen
+  // Users are always created with a room
+  // just safety net
+  if (!userRoom) {
+    return redirect('/login')
+  }
+
+  return redirect(generatePath(ROUTES.roomDetail, { roomCode: userRoom.code }))
 }
 
 export { typedAuthSessionStorage }

@@ -13,6 +13,8 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@conform-to/react": "^1.2.2",
+    "@conform-to/zod": "^1.2.2",
     "@prisma/client": "^6.1.0",
     "@radix-ui/react-label": "^2.1.1",
     "@radix-ui/react-slot": "^1.1.1",

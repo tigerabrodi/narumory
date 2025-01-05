@@ -51,3 +51,36 @@ This template comes with [Tailwind CSS](https://tailwindcss.com/) already config
 ---
 
 Built with ❤️ using React Router.
+
+---
+
+i hate try catch in typescript, ended up writing a utility to handle async functions
+
+```ts
+type ExtractAsyncFnArgs<Args extends Array<any>> =
+  Args extends Array<infer PotentialArgTypes> ? [PotentialArgTypes] : []
+
+type Result<ReturnType> = [ReturnType, null] | [null, Error]
+
+export async function runAsync<Args extends Array<any>, ReturnType>(
+  asyncFn: (...args: ExtractAsyncFnArgs<Args>) => Promise<ReturnType>,
+  ...args: ExtractAsyncFnArgs<Args>
+): Promise<Result<ReturnType>> {
+  try {
+    const result = await asyncFn(...args)
+    return [result, null]
+  } catch (error) {
+    return [null, error instanceof Error ? error : new Error(String(error))]
+  }
+}
+
+// Use it like
+const [post, error] = await runAsync(createPost, {
+  title: 'Hello World',
+  content: 'This is a test post',
+})
+
+if (error) throw new Error('Failed to create post')
+
+// ...
+```

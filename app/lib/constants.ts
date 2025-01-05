@@ -4,3 +4,14 @@ export const ROUTES = {
   login: '/login',
   register: '/register',
 } as const
+
+export const FORM_INTENT_KEY = 'intent'
+
+export const FORM_INTENT_VALUES = {
+  register: 'register',
+  login: 'login',
+} as const
+
+export const COOKIE_KEYS = {
+  setCookie: 'Set-Cookie',
+} as const
