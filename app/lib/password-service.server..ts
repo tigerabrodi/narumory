@@ -7,20 +7,30 @@ export class PasswordService {
 
   static async hashPassword(password: string) {
     const salt = crypto.randomBytes(16).toString('hex')
-    const hash = await this.generateHash(password, salt)
+    const hash = await this.generateHash({ password, salt })
     return { hash, salt }
   }
 
-  static async verifyPassword(
-    password: string,
-    storedHash: string,
+  static async verifyPassword({
+    password,
+    storedHash,
+    storedSalt,
+  }: {
+    password: string
+    storedHash: string
     storedSalt: string
-  ) {
-    const attemptHash = await this.generateHash(password, storedSalt)
+  }) {
+    const attemptHash = await this.generateHash({ password, salt: storedSalt })
     return attemptHash === storedHash
   }
 
-  private static generateHash(password: string, salt: string) {
+  private static generateHash({
+    password,
+    salt,
+  }: {
+    password: string
+    salt: string
+  }) {
     return new Promise<string>((resolve, reject) => {
       crypto.pbkdf2(
         password,
