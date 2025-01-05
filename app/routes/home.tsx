@@ -1,10 +1,11 @@
+import { useState } from "react";
+import { Button } from "~/components/ui/button";
 import type { Route } from "./+types/home";
-import { Welcome } from "../welcome/welcome";
 
-export function meta({}: Route.MetaArgs) {
+export function meta() {
   return [
-    { title: "New React Router App" },
-    { name: "description", content: "Welcome to React Router!" },
+    { title: "Narumory" },
+    { name: "description", content: "A multiplayer Naruto memory game" },
   ];
 }
 
@@ -13,5 +14,15 @@ export function loader({ context }: Route.LoaderArgs) {
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {
-  return <Welcome message={loaderData.message} />;
+  const [isHi] = useState(true);
+
+  console.log(loaderData);
+  console.log("hi", isHi);
+
+  return (
+    <div className="container mx-auto flex flex-col items-center">
+      <h1 className="text-4xl text-primary font-ninja">hello world</h1>
+      <Button>Click me</Button>
+    </div>
+  );
 }
