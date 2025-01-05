@@ -5,10 +5,9 @@ import type { Plugin } from "vite";
 import { defaultClientConditions, defaultServerConditions, defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
-// Make it type-safe by explicitly typing it as a Vite Plugin
 const prismaFixPlugin: Plugin = {
   name: 'prisma-fix',
-  enforce: 'post', // Now TypeScript knows this must be 'pre' | 'post' | undefined
+  enforce: 'post',
   config() {
     return {
       resolve: {
