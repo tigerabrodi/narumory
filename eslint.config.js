@@ -11,8 +11,10 @@ export default tseslint.config(
       'dist',
       'node_modules',
       'vercel',
+      '.vercel',
       'dev-server.js',
       '.react-router',
+      'build',
     ],
   },
   {
