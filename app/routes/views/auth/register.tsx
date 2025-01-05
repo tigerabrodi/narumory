@@ -159,8 +159,8 @@ export async function action({ request }: Route.ActionArgs) {
 
   if (getUserError) throw new Error('Connection to database failed')
 
-  if (getUserResult) {
-    const isSameUserName = getUserResult.username === username
+  if (getUserResult.existingUser) {
+    const isSameUserName = getUserResult.existingUser.username === username
 
     if (isSameUserName)
       return submission.reply({
@@ -178,7 +178,7 @@ export async function action({ request }: Route.ActionArgs) {
     password,
   })
 
-  if (error || !createUserResult?.room)
+  if (error || !createUserResult?.user?.room)
     return submission.reply({
       fieldErrors: {
         email: ['Failed to create user, please try again later.'],
@@ -186,7 +186,7 @@ export async function action({ request }: Route.ActionArgs) {
     })
 
   const session = await typedAuthSessionStorage.getSession()
-  session.set('userId', createUserResult.id)
+  session.set('userId', createUserResult.user.id)
 
   const headers = new Headers()
   headers.set(
@@ -195,7 +195,9 @@ export async function action({ request }: Route.ActionArgs) {
   )
 
   return redirect(
-    generatePath(ROUTES.roomDetail, { roomCode: createUserResult.room.code }),
+    generatePath(ROUTES.roomDetail, {
+      roomCode: createUserResult.user.room.code,
+    }),
     {
       headers,
     }
