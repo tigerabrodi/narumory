@@ -14,7 +14,9 @@
   },
   "dependencies": {
     "@prisma/client": "^6.1.0",
+    "@radix-ui/react-label": "^2.1.1",
     "@radix-ui/react-slot": "^1.1.1",
+    "@radix-ui/react-tabs": "^1.1.2",
     "@react-router/express": "^7.1.1",
     "@react-router/node": "^7.1.1",
     "@vercel/node": "^3.2.25",
@@ -23,11 +25,14 @@
     "express": "^4.21.1",
     "isbot": "^5.1.17",
     "lucide-react": "^0.469.0",
+    "prettier": "^3.4.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router": "^7.1.1",
+    "remix-utils": "^8.0.0",
     "tailwind-merge": "^2.6.0",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "zod": "^3.24.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",

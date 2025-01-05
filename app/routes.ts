@@ -1,12 +1,17 @@
-import { type RouteConfig, index, route } from "@react-router/dev/routes";
+import { type RouteConfig, route } from '@react-router/dev/routes'
 
 export default [
   // Landing page with auth tabs
-  index("routes/views/home/index.tsx"),    
+  route('/', 'routes/views/auth/root.tsx', [
+    route('login', 'routes/views/auth/login.tsx'),
+    route('register', 'routes/views/auth/register.tsx'),
+  ]),
 
-  // Game room with dynamic roomId
-  route("rooms/:roomId", "routes/views/room-detail/index.tsx"),
+  // Rooms
+  route('rooms/:roomCode', 'routes/views/room-detail/room.tsx', [
+    route('join', 'routes/views/room-detail/join.tsx'),
+  ]),
 
-  // Liveblocks auth endpoint
-  route("api/liveblocks/auth", "routes/resources/api.liveblocks.ts")
-] satisfies RouteConfig;
+  // API
+  route('api/liveblocks/auth', 'routes/resources/api.liveblocks.ts'),
+] satisfies RouteConfig

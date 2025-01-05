@@ -37,6 +37,6 @@
 }
 
 @font-face {
-  font-family: "Ninja";
-  src: url("/assets/ninja.ttf") format("truetype");
+  font-family: 'Ninja';
+  src: url('/assets/ninja.ttf') format('truetype');
 }

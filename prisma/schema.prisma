@@ -16,8 +16,31 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Add at least one model
+
 model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
+  id        String   @id @default(cuid())
+  email     String   @unique
+  username  String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  password Password? @relation("UserToPassword")
+  room     Room?     @relation("RoomToUser")
+  roomId   String?   @unique
+}
+
+model Password {
+  id     String @id @default(cuid())
+  hash   String
+  salt   String
+  userId String @unique
+  user   User   @relation("UserToPassword", fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Room {
+  id    String @id @default(cuid())
+  name  String
+  code  String @unique
+  owner User   @relation("RoomToUser", fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId String @unique
 }

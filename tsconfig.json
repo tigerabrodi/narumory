@@ -17,7 +17,7 @@
     "paths": {
       "~/*": ["./app/*"],
       "@rr-views/*": [".react-router/types/app/routes/views/*"],
-      "@rr-resources/*": [".react-router/types/app/routes/resources/*"],
+      "@rr-resources/*": [".react-router/types/app/routes/resources/*"]
     },
     "esModuleInterop": true,
     "verbatimModuleSyntax": true,
