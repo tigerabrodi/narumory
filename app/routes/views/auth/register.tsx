@@ -129,7 +129,7 @@ export default function Register({ actionData }: Route.ComponentProps) {
           value={FORM_INTENT_VALUES.register}
           disabled={isSubmitting}
         >
-          Register
+          {isSubmitting ? 'Registering...' : 'Register'}
         </Button>
       </Form>
     </TabsContent>
