@@ -1,6 +1,6 @@
+import type { Route } from '@rr-views/home/+types/index';
 import { useState } from "react";
 import { Button } from "~/components/ui/button";
-import type { Route } from "./+types/home";
 
 export function meta() {
   return [
