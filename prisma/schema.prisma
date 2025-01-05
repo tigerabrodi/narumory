@@ -6,6 +6,8 @@
 
 generator client {
   provider = "prisma-client-js"
+  // Generate to a different location to avoid the problematic .prisma path
+  output   = "../node_modules/@prisma/client-generated"
 }
 
 datasource db {
