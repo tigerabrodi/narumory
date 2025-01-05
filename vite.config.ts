@@ -5,6 +5,9 @@ import type { Plugin } from "vite";
 import { defaultClientConditions, defaultServerConditions, defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
+// This plugin fixes Vite 6's module resolution conditions which changed from v5
+// React Router sets conditions: [] which breaks @prisma/client resolution
+// See: https://github.com/remix-run/react-router/pull/12644
 const prismaFixPlugin: Plugin = {
   name: 'prisma-fix',
   enforce: 'post',
@@ -28,6 +31,8 @@ export default defineConfig(({ isSsrBuild, command }) => ({
     rollupOptions: isSsrBuild
       ? {
           input: "./server/app.ts",
+                 // Mark Prisma as external to prevent Vite from trying to bundle it
+          // This avoids ESM/CJS conflicts during build
           external: ['@prisma/client-generated']
         }
       : undefined,
@@ -39,6 +44,8 @@ export default defineConfig(({ isSsrBuild, command }) => ({
   },
   ssr: {
     noExternal: command === "build" ? true : undefined,
+        // Keep Prisma external in SSR to avoid __dirname issues
+    // since Prisma uses __dirname which isn't available in ESM
     external: ['@prisma/client-generated']
   },
   plugins: [prismaFixPlugin, reactRouter(), tsconfigPaths()],

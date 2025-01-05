@@ -6,7 +6,8 @@
 
 generator client {
   provider = "prisma-client-js"
-  // Generate to a different location to avoid the problematic .prisma path
+    // Generate client to a different location to avoid the problematic `.prisma` path
+  // `.prisma` paths cause issues with ESM imports in Node.js
   output   = "../node_modules/@prisma/client-generated"
 }
 
