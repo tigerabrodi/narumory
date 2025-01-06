@@ -1,4 +1,4 @@
-import { LiveList, LiveMap, LiveObject } from '@liveblocks/client'
+import { LiveList, LiveMap, LiveObject, type User } from '@liveblocks/client'
 import {
   ClientSideSuspense,
   LiveblocksProvider,
@@ -14,9 +14,21 @@ import {
   useUpdateMyPresence,
 } from '@liveblocks/react/suspense'
 import type { Route } from '@rr-views/room-detail/+types/room'
-import { ROOM_EVENTS, type GameCard, type PlayerScore } from 'liveblocks.config'
+import {
+  ROOM_EVENTS,
+  type GameCard,
+  type PlayerScore,
+  type PlayerStates,
+} from 'liveblocks.config'
 import { useMemo } from 'react'
-import { generatePath, Link, Outlet, redirect, useParams } from 'react-router'
+import {
+  generatePath,
+  Link,
+  Outlet,
+  redirect,
+  useNavigate,
+  useParams,
+} from 'react-router'
 import { Button } from '~/components/ui/button'
 import { ScrollArea } from '~/components/ui/scroll-area'
 import { useToast } from '~/hooks/use-toast'
@@ -33,7 +45,7 @@ import {
   MINIMUM_PLAYERS_TO_START,
   TOTAL_PAIRS,
 } from './lib/constants'
-import { getRoomWithOwner } from './lib/db-queries'
+import { getRoomByOwnerId, getRoomByRoomCode } from './lib/db-queries'
 import { RoomDetailProvider, useRoomDetail } from './lib/room-context'
 import { getColorById, toPlayerStateKey } from './lib/utils'
 
@@ -47,20 +59,25 @@ export async function loader({ params, request }: Route.LoaderArgs) {
 
   const user = requireAuthResult.user
 
-  if (!user) {
-    return redirect(generatePath(ROUTES.login))
-  }
-
   const { roomCode } = params
 
-  const room = await getRoomWithOwner({
+  const myRoom = await getRoomByOwnerId({
+    ownerId: user.id,
+  })
+
+  const room = await getRoomByRoomCode({
     roomCode,
   })
 
+  if (!room || !myRoom) {
+    return redirect(generatePath(ROUTES.login))
+  }
+
   return {
-    ownerEmail: room?.owner.email,
-    roomCode: room?.code,
-    roomName: room?.name,
+    ownerEmail: room.owner.email,
+    roomCode: room.code,
+    roomName: room.name,
+    myRoomCode: myRoom.code,
   }
 }
 
@@ -184,16 +201,26 @@ function GameRoom() {
 // - make sure to remove the player from player states
 // - if game was playing and it is their progress, move to next player
 function PlayerHeader() {
+  const { roomData } = useRoomDetail()
+
   return (
-    <RoomHeader actions={<Button variant="destructive">Leave Room</Button>} />
+    <RoomHeader
+      actions={
+        <Button variant="destructive" asChild>
+          <Link
+            to={generatePath(ROUTES.leaveRoom, { roomCode: roomData.roomCode })}
+            prefetch="intent"
+          >
+            Leave Room
+          </Link>
+        </Button>
+      }
+    />
   )
 }
 
-function OwnerHeader() {
-  const { roomData } = useRoomDetail()
-  const gameState = useStorage((root) => root.state)
-
-  const stopGame = useMutation(({ storage }) => {
+function useStopGame() {
+  return useMutation(({ storage }) => {
     storage.set('state', GAME_STATES.LOBBY)
     storage.set('cards', new LiveList([]))
     storage.set('currentTurnPlayerId', null)
@@ -213,8 +240,13 @@ function OwnerHeader() {
       })
     })
   }, [])
+}
 
-  if (!roomData.roomCode) return null
+function OwnerHeader() {
+  const { roomData } = useRoomDetail()
+  const gameState = useStorage((root) => root.state)
+
+  const stopGame = useStopGame()
 
   return (
     <RoomHeader
@@ -434,23 +466,81 @@ function CursorPresence() {
   )
 }
 
+function getNextPlayerId(
+  currentId: string,
+  storage: LiveObject<{ playerStates: PlayerStates }>
+) {
+  // Get ordered list of players from storage
+  const playerStates = storage.get('playerStates')
+  const playerIds = Array.from(playerStates.keys())
+
+  const currentIndex = playerIds.indexOf(currentId)
+  const nextIndex = (currentIndex + 1) % playerIds.length
+
+  return playerIds[nextIndex]
+}
+
 function RoomEvents() {
   const toast = useToast()
+  const gameState = useStorage((root) => root.state)
+  const selfConnectionId = useSelf((self) => self.connectionId)
+  const navigate = useNavigate()
+  const stopGame = useStopGame()
+  const { roomData } = useRoomDetail()
+
+  const handleUserLeave = useMutation(
+    ({ storage, others }, user: User) => {
+      const remainingPlayers = others.filter(
+        (other) => other.id !== user.id
+      ).length
+
+      const playerStates = storage.get('playerStates')
+      playerStates.delete(user.id)
+
+      // Move to next player if player leaving was current turn
+      const wasCurrentTurn = storage.get('currentTurnPlayerId') === user.id
+      if (wasCurrentTurn) {
+        const nextPlayer = getNextPlayerId(user.id, storage)
+        storage.set('currentTurnPlayerId', nextPlayer)
+      }
+
+      // Stop game is owner is alone
+      // they could do it themselves but why not help them
+      if (remainingPlayers === 0) {
+        stopGame()
+      }
+    },
+    [stopGame]
+  )
+
+  const handleGameInProgressJoin = () => {
+    toast.toast({
+      title: 'Game already in progress',
+      variant: 'destructive',
+    })
+
+    void navigate(
+      generatePath(ROUTES.roomDetail, { roomCode: roomData.myRoomCode })
+    )
+  }
 
   useOthersListener(({ type, user }) => {
     if (!user?.info?.username) return
 
-    switch (type) {
-      case 'enter':
+    const isSelf = user.connectionId === selfConnectionId
+    const isGameInProgress = gameState === GAME_STATES.IN_PROGRESS
+
+    if (type === 'enter') {
+      if (isGameInProgress && isSelf) {
+        handleGameInProgressJoin()
+      } else {
         toast.toast({
           title: `${user.info.username} joined the game`,
         })
-        break
-      case 'leave':
-        toast.toast({
-          title: `${user.info.username} left the game`,
-        })
-        break
+      }
+    }
+    if (type === 'leave') {
+      handleUserLeave(user)
     }
   })
 

@@ -10,6 +10,7 @@ export default [
   // Rooms
   route('rooms/:roomCode', 'routes/views/room-detail/room.tsx', [
     route('join', 'routes/views/room-detail/join.tsx'),
+    route('leave', 'routes/views/room-detail/leave.tsx'),
   ]),
 
   // API

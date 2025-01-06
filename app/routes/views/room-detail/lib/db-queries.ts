@@ -1,6 +1,6 @@
 import { prisma } from '~/lib/db.server'
 
-export async function getRoomWithOwner({ roomCode }: { roomCode: string }) {
+export async function getRoomByRoomCode({ roomCode }: { roomCode: string }) {
   return prisma.room.findUnique({
     where: {
       code: roomCode,
@@ -13,6 +13,14 @@ export async function getRoomWithOwner({ roomCode }: { roomCode: string }) {
           email: true,
         },
       },
+    },
+  })
+}
+
+export async function getRoomByOwnerId({ ownerId }: { ownerId: string }) {
+  return prisma.room.findUnique({
+    where: {
+      ownerId,
     },
   })
 }

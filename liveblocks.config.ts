@@ -19,6 +19,8 @@ export const ROOM_EVENTS = {
   ERROR_SOUND: 'ERROR_SOUND',
 } as const
 
+export type PlayerStates = LiveMap<string, LiveObject<PlayerScore>>
+
 declare global {
   interface Liveblocks {
     // Each user's Presence
@@ -31,7 +33,7 @@ declare global {
     Storage: {
       state: 'LOBBY' | 'IN_PROGRESS' | 'FINISHED'
       cards: LiveList<LiveObject<GameCard>>
-      playerStates: LiveMap<string, LiveObject<PlayerScore>>
+      playerStates: PlayerStates
 
       // Game configuration
       totalPairs: number

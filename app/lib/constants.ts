@@ -2,6 +2,7 @@ export const ROUTES = {
   home: '/',
   roomDetail: '/rooms/:roomCode',
   roomJoin: '/rooms/:roomCode/join',
+  leaveRoom: '/rooms/:roomCode/leave',
   login: '/login',
   register: '/register',
 } as const
