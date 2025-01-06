@@ -14,4 +14,5 @@ export const FORM_INTENT_VALUES = {
 
 export const COOKIE_KEYS = {
   setCookie: 'Set-Cookie',
+  getCookie: 'Cookie',
 } as const

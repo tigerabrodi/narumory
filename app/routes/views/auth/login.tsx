@@ -21,7 +21,7 @@ import {
 import { PasswordService } from '~/lib/password-service.server.'
 import { runAsync } from '~/lib/utils'
 import { TAB_VALUES } from './constants'
-import { getUserByEmail } from './db-queries'
+import { getUserWithRoomAndPassword } from './db-queries'
 
 const formSchema = z.object({
   email: z
@@ -115,13 +115,12 @@ export async function action({ request }: Route.ActionArgs) {
   // ...which we can see from logging the values
   const { email, password } = submission.payload as FormSchema
 
-  const [getUserResult, getUserError] = await runAsync(getUserByEmail, {
-    email,
-    include: {
-      password: true,
-      room: true,
-    },
-  })
+  const [getUserResult, getUserError] = await runAsync(
+    getUserWithRoomAndPassword,
+    {
+      email,
+    }
+  )
 
   if (
     getUserError ||

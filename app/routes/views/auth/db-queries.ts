@@ -1,4 +1,3 @@
-import type { Prisma } from '@prisma/client-generated'
 import { prisma } from '~/lib/db.server'
 import { PasswordService } from '~/lib/password-service.server.'
 import { generateUniqueRoomCode } from '~/lib/room.server'
@@ -57,16 +56,13 @@ export async function createUser({
   return { user }
 }
 
-export async function getUserByEmail({
-  email,
-  include,
-}: {
-  email: string
-  include: Prisma.UserInclude
-}) {
+export async function getUserWithRoomAndPassword({ email }: { email: string }) {
   const user = await prisma.user.findUnique({
     where: { email },
-    include,
+    include: {
+      room: true,
+      password: true,
+    },
   })
 
   return { user }
