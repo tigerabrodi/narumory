@@ -13,7 +13,6 @@ export function RoomHeader({ actions }: RoomHeaderProps) {
   const { roomData } = useRoomDetail()
 
   const copyRoomCode = () => {
-    console.log('copying code', roomData)
     void navigator.clipboard.writeText(roomData.roomCode ?? '')
 
     toast({

@@ -36,8 +36,6 @@ export default function Join({ actionData }: Route.ComponentProps) {
   const isSubmitting =
     navigation.formData?.get(FORM_INTENT_KEY) === FORM_INTENT_VALUES.joinRoom
 
-  console.log('actionData', actionData)
-
   const [form, fields] = useForm({
     shouldValidate: 'onBlur',
     lastResult: actionData,

@@ -137,8 +137,6 @@ export async function action({ request }: Route.ActionArgs) {
     storedSalt: getUserResult.user.password.salt,
   })
 
-  console.log('isPasswordCorrect', isPasswordCorrect)
-
   if (!isPasswordCorrect)
     return submission.reply({
       fieldErrors: {
