@@ -3,6 +3,7 @@ import {
   ClientSideSuspense,
   LiveblocksProvider,
   RoomProvider,
+  useMutation,
   useOthers,
   useOthersListener,
   useOthersMapped,
@@ -11,6 +12,7 @@ import {
   useUpdateMyPresence,
 } from '@liveblocks/react/suspense'
 import type { Route } from '@rr-views/room-detail/+types/room'
+import { useMemo } from 'react'
 import { generatePath, Link, Outlet, redirect, useParams } from 'react-router'
 import { Button } from '~/components/ui/button'
 import { ScrollArea } from '~/components/ui/scroll-area'
@@ -37,7 +39,6 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   const user = requireAuthResult.user
 
   if (!user) {
-    console.log('returning')
     return redirect(generatePath(ROUTES.login))
   }
 
@@ -65,6 +66,7 @@ export default function RoomDetail({ loaderData }: Route.ComponentProps) {
   )
 }
 
+// TODO: show something nice e.g. logo animatining in the middle
 function RoomLoading() {
   return <div>Loading...</div>
 }
@@ -73,6 +75,8 @@ function RoomWrapper() {
   const { roomCode } = useParams<{ roomCode: string }>()
 
   if (!roomCode) return <RoomLoading />
+
+  // TODO: add error boundary using package react-error-boundary
 
   return (
     <RoomProvider
@@ -87,7 +91,7 @@ function RoomWrapper() {
       // which will be the owner themselves after creating their account
       // and getting redirected
       initialStorage={{
-        state: 'LOBBY',
+        state: GAME_STATES.LOBBY,
         cards: new LiveList([]),
         playerStates: new LiveMap(),
         totalPairs: 32,
@@ -97,7 +101,7 @@ function RoomWrapper() {
         secondSelectedId: null,
         animatingMatchIds: [],
         animatingErrorIds: [],
-        canSelect: false,
+        canSelect: true,
         winningPlayerId: null,
       }}
     >
@@ -109,7 +113,6 @@ function RoomWrapper() {
 }
 
 function GameRoom() {
-  const gameState = useStorage((root) => root.state)
   const { roomData } = useRoomDetail()
 
   // we use emails as ids
@@ -147,8 +150,7 @@ function GameRoom() {
 
             <div className="relative">
               <GameGrid className="opacity-25" />
-              {gameState === GAME_STATES.LOBBY &&
-                (isOwner ? <OwnerOverlay /> : <PlayerOverlay />)}
+              {isOwner ? <OwnerOverlay /> : <PlayerOverlay />}
             </div>
           </div>
         </div>
@@ -171,6 +173,27 @@ function OwnerHeader() {
   const { roomData } = useRoomDetail()
   const gameState = useStorage((root) => root.state)
 
+  const stopGame = useMutation(({ storage }) => {
+    storage.set('state', GAME_STATES.LOBBY)
+    storage.set('cards', new LiveList([]))
+    storage.set('currentTurnPlayerId', null)
+    storage.set('firstSelectedId', null)
+    storage.set('secondSelectedId', null)
+    storage.set('animatingMatchIds', [])
+    storage.set('animatingErrorIds', [])
+    storage.set('canSelect', true)
+    storage.set('totalPairsMatched', 0)
+    storage.set('winningPlayerId', null)
+
+    const playerStates = storage.get('playerStates')
+    playerStates.forEach((state) => {
+      state.update({
+        collectedPairIds: [],
+        pairsCount: 0,
+      })
+    })
+  }, [])
+
   if (!roomData.roomCode) return null
 
   return (
@@ -182,7 +205,9 @@ function OwnerHeader() {
               Go to room
             </Button>
             {/* TODO: add stop game button logic */}
-            <Button variant="destructive">Stop Game</Button>
+            <Button variant="destructive" onClick={stopGame}>
+              Stop Game
+            </Button>
           </div>
         ) : (
           <Button variant="outline" asChild>
@@ -223,15 +248,55 @@ function Overlay({
   )
 }
 
+function useGetWinner() {
+  const winnerId = useStorage((root) => root.winningPlayerId)
+  const winnerState = useStorage((root) =>
+    root.winningPlayerId ? root.playerStates.get(root.winningPlayerId) : null
+  )
+
+  const self = useSelf()
+  const others = useOthers()
+
+  const winner = useMemo(() => {
+    if (!winnerId || !winnerState) return null
+
+    const isWinnerSelf = String(self.connectionId) === winnerId
+    const username = isWinnerSelf
+      ? self.info.username
+      : others.find((other) => String(other.connectionId) === winnerId)?.info
+          .username
+
+    return { state: winnerState, username, score: winnerState.pairsCount }
+  }, [winnerId, winnerState, others, self])
+
+  return winner
+}
+
 // TODO: add finished overlay
 // currently lobby state overlay is done
 function PlayerOverlay() {
-  return (
-    <Overlay
-      title="Waiting for players..."
-      description="Waiting for owner to start the game"
-    />
-  )
+  const gameState = useStorage((root) => root.state)
+  const winner = useGetWinner()
+
+  if (gameState === GAME_STATES.LOBBY) {
+    return (
+      <Overlay
+        title="Waiting for players..."
+        description="Waiting for owner to start the game"
+      />
+    )
+  }
+
+  if (gameState === GAME_STATES.FINISHED && winner) {
+    return (
+      <Overlay
+        title="Game Over!"
+        description={`${winner.username} won with ${winner.score} pairs!`}
+      />
+    )
+  }
+
+  return null
 }
 
 // TODO: add finished overlay
@@ -240,13 +305,33 @@ function OwnerOverlay() {
   const playersCount = useOthers((others) => others.length)
   const isStartButtonDisabled = playersCount < MINIMUM_PLAYERS_TO_START
 
-  return (
-    <Overlay
-      title="Waiting for players..."
-      description="Minimum 2 players required to start"
-      actions={<Button disabled={isStartButtonDisabled}>Start Game</Button>}
-    />
-  )
+  const gameState = useStorage((root) => root.state)
+
+  const winner = useGetWinner()
+
+  if (gameState === GAME_STATES.LOBBY) {
+    return (
+      <Overlay
+        title="Waiting for players..."
+        description="Minimum 2 players required to start"
+        actions={<Button disabled={isStartButtonDisabled}>Start Game</Button>}
+      />
+    )
+  }
+
+  if (gameState === GAME_STATES.FINISHED && winner) {
+    return (
+      <Overlay
+        title="Game Over!"
+        description={`${winner.username} won with ${winner.score} pairs!`}
+        actions={
+          <Button disabled={isStartButtonDisabled}>Start New Game</Button>
+        }
+      />
+    )
+  }
+
+  return null
 }
 
 function CursorPresence() {
@@ -306,34 +391,46 @@ function PlayerList() {
   const currentTurnId = useStorage((root) => root.currentTurnPlayerId)
   const winningPlayerId = useStorage((root) => root.winningPlayerId)
 
-  const allPlayers = [
-    {
-      id: toPlayerStateKey(self.connectionId),
-      username: self.username,
-      score:
-        playerStates?.get(toPlayerStateKey(self.connectionId))?.pairsCount ?? 0,
-      isCurrentTurn: Boolean(
-        currentTurnId && currentTurnId === toPlayerStateKey(self.connectionId)
-      ),
-      isWinner: Boolean(
-        winningPlayerId &&
-          winningPlayerId === toPlayerStateKey(self.connectionId)
-      ),
-      color: getColorById(self.connectionId),
-    },
-    ...others.map(([connectionId, { username }]) => ({
-      id: toPlayerStateKey(connectionId),
-      username: username,
-      score: playerStates?.get(toPlayerStateKey(connectionId))?.pairsCount ?? 0,
-      isCurrentTurn: Boolean(
-        currentTurnId && currentTurnId === toPlayerStateKey(connectionId)
-      ),
-      isWinner: Boolean(
-        winningPlayerId && winningPlayerId === toPlayerStateKey(connectionId)
-      ),
-      color: getColorById(connectionId),
-    })),
-  ]
+  const allPlayers = useMemo(
+    () => [
+      {
+        id: toPlayerStateKey(self.connectionId),
+        username: self.username,
+        score:
+          playerStates?.get(toPlayerStateKey(self.connectionId))?.pairsCount ??
+          0,
+        isCurrentTurn: Boolean(
+          currentTurnId && currentTurnId === toPlayerStateKey(self.connectionId)
+        ),
+        isWinner: Boolean(
+          winningPlayerId &&
+            winningPlayerId === toPlayerStateKey(self.connectionId)
+        ),
+        color: getColorById(self.connectionId),
+      },
+      ...others.map(([connectionId, { username }]) => ({
+        id: toPlayerStateKey(connectionId),
+        username: username,
+        score:
+          playerStates?.get(toPlayerStateKey(connectionId))?.pairsCount ?? 0,
+        isCurrentTurn: Boolean(
+          currentTurnId && currentTurnId === toPlayerStateKey(connectionId)
+        ),
+        isWinner: Boolean(
+          winningPlayerId && winningPlayerId === toPlayerStateKey(connectionId)
+        ),
+        color: getColorById(connectionId),
+      })),
+    ],
+    [
+      currentTurnId,
+      others,
+      playerStates,
+      self.connectionId,
+      self.username,
+      winningPlayerId,
+    ]
+  )
 
   return (
     <ScrollArea className="h-[600px] max-h-full rounded-lg border p-4">
