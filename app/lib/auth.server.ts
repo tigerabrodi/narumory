@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client-generated'
 import {
   createCookieSessionStorage,
   generatePath,
@@ -34,14 +35,31 @@ export function getCookieFromRequest(request: Request) {
   return request.headers.get(COOKIE_KEYS.getCookie)
 }
 
-export async function requireAuth({ request }: { request: Request }) {
+type AuthResponse =
+  | {
+      type: 'redirect'
+      response: Response
+    }
+  | {
+      type: 'result'
+      user: Prisma.UserGetPayload<null>
+    }
+
+export async function requireAuth({
+  request,
+}: {
+  request: Request
+}): Promise<AuthResponse> {
   const session = await typedAuthSessionStorage.getSession(
     getCookieFromRequest(request)
   )
   const userId = session.get('userId')
 
   if (!userId) {
-    return redirect(generatePath(ROUTES.home))
+    return {
+      type: 'redirect',
+      response: redirect(generatePath(ROUTES.login)),
+    }
   }
 
   const user = await prisma.user.findUnique({
@@ -50,9 +68,17 @@ export async function requireAuth({ request }: { request: Request }) {
 
   // if user doesn't exist for whatever reason
   // logout
-  if (!user) await logout({ request })
+  if (!user) {
+    return {
+      type: 'redirect',
+      response: await logout({ request }),
+    }
+  }
 
-  return user
+  return {
+    type: 'result',
+    user,
+  }
 }
 
 export async function getUserIdFromRequest({ request }: { request: Request }) {
@@ -74,7 +100,7 @@ export async function logout({ request }: { request: Request }) {
     await typedAuthSessionStorage.destroySession(session)
   )
 
-  return redirect(generatePath(ROUTES.home), {
+  return redirect(generatePath(ROUTES.login), {
     headers,
   })
 }

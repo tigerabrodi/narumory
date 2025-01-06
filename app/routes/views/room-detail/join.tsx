@@ -23,9 +23,7 @@ export default function Join() {
             <Label htmlFor="roomCode">Room Code</Label>
             <Input id="roomCode" placeholder="Enter room code..." />
           </div>
-          <Button className="w-full bg-[#FF6B00] hover:bg-[#FF8533]">
-            Join Room
-          </Button>
+          <Button>Join Room</Button>
         </div>
       </DialogContent>
     </Dialog>

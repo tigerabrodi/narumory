@@ -14,9 +14,11 @@ const jsonSchema = z.object({
 })
 
 export async function action({ request }: Route.ActionArgs) {
-  const user = await requireAuth({ request })
+  const requireAuthResult = await requireAuth({ request })
 
-  if (!user || user instanceof Response) return
+  if (requireAuthResult.type === 'redirect') return requireAuthResult.response
+
+  const user = requireAuthResult.user
 
   const json = jsonSchema.safeParse(await request.json())
 
@@ -24,7 +26,6 @@ export async function action({ request }: Route.ActionArgs) {
 
   const { room: roomCode } = json.data
 
-  // Create Liveblocks session
   const session = liveblocks.prepareSession(user.email, {
     userInfo: {
       username: user.username,
@@ -32,7 +33,6 @@ export async function action({ request }: Route.ActionArgs) {
     },
   })
 
-  // Give access to requested room
   session.allow(roomCode, session.FULL_ACCESS)
 
   const { body, status } = await session.authorize()

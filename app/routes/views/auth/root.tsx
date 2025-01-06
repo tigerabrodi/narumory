@@ -9,10 +9,11 @@ import { TAB_VALUES } from './constants'
 export async function loader({ request }: Route.LoaderArgs) {
   const userId = await getUserIdFromRequest({ request })
   const path = new URL(request.url).pathname
-  const isOnLoginPage = path === '/login'
-  const isOnRegisterPage = path === '/register'
+  const isOnLoginPage = path === ROUTES.login
+  const isOnRegisterPage = path === ROUTES.register
 
-  if (!userId && !isOnLoginPage && !isOnRegisterPage) return redirect('/login')
+  if (!userId && !isOnLoginPage && !isOnRegisterPage)
+    return redirect(generatePath(ROUTES.login))
   if (!userId) return null
 
   return redirectAuthUserToRoom({ userId })

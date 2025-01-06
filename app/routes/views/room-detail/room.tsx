@@ -11,10 +11,11 @@ import {
   useUpdateMyPresence,
 } from '@liveblocks/react/suspense'
 import type { Route } from '@rr-views/room-detail/+types/room'
-import { generatePath, Link, Outlet, useParams } from 'react-router'
+import { generatePath, Link, Outlet, redirect, useParams } from 'react-router'
 import { Button } from '~/components/ui/button'
 import { ScrollArea } from '~/components/ui/scroll-area'
 import { useToast } from '~/hooks/use-toast'
+import { requireAuth } from '~/lib/auth.server'
 import { ROUTES } from '~/lib/constants'
 import { Cursor } from './components/cursor'
 import { GameGrid } from './components/game-grid'
@@ -25,9 +26,21 @@ import { RoomDetailProvider, useRoomDetail } from './lib/context'
 import { getRoomWithOwner } from './lib/db-queries'
 import { getColorById, toPlayerStateKey } from './lib/utils'
 
-// TODO: add join dialog
+const LIVEBLOCKS_AUTH_ENDPOINT = '/api/liveblocks/auth'
 
-export async function loader({ params }: Route.LoaderArgs) {
+// TODO: add join dialog
+export async function loader({ params, request }: Route.LoaderArgs) {
+  const requireAuthResult = await requireAuth({ request })
+
+  if (requireAuthResult.type === 'redirect') throw requireAuthResult.response
+
+  const user = requireAuthResult.user
+
+  if (!user) {
+    console.log('returning')
+    return redirect(generatePath(ROUTES.login))
+  }
+
   const { roomCode } = params
 
   const room = await getRoomWithOwner({
@@ -43,7 +56,7 @@ export async function loader({ params }: Route.LoaderArgs) {
 
 export default function RoomDetail({ loaderData }: Route.ComponentProps) {
   return (
-    <LiveblocksProvider authEndpoint="/api/liveblocks/auth">
+    <LiveblocksProvider authEndpoint={LIVEBLOCKS_AUTH_ENDPOINT}>
       <RoomDetailProvider roomData={loaderData}>
         <RoomWrapper />
         <Outlet />
@@ -177,6 +190,7 @@ function OwnerHeader() {
               to={generatePath(ROUTES.roomJoin, {
                 roomCode: roomData.roomCode,
               })}
+              prefetch="intent"
             >
               Go to room
             </Link>
