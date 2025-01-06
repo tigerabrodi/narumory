@@ -36,7 +36,7 @@ export function PlayerCard({
         <AvatarFallback>{initials}</AvatarFallback>
       </Avatar>
       <div>
-        <p className="font-ninja text-base" style={{ color }}>
+        <p className="font-ninja text-sm" style={{ color }}>
           {username}
         </p>
         <p className="text-sm text-muted-foreground">Pairs: {score}</p>
