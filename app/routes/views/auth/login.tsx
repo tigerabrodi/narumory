@@ -93,8 +93,9 @@ export default function Login({ actionData }: Route.ComponentProps) {
           disabled={isSubmitting}
           name={FORM_INTENT_KEY}
           value={FORM_INTENT_VALUES.login}
+          isLoading={isSubmitting}
         >
-          {isSubmitting ? 'Logging in...' : 'Login'}
+          Login
         </Button>
       </Form>
     </TabsContent>
