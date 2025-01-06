@@ -19,7 +19,7 @@ import {
   ROUTES,
 } from '~/lib/constants'
 import { PasswordService } from '~/lib/password-service.server.'
-import { runAsync } from '~/lib/utils'
+import { handlePromise } from '~/lib/utils'
 import { TAB_VALUES } from './constants'
 import { getUserWithRoomAndPassword } from './db-queries'
 
@@ -115,11 +115,8 @@ export async function action({ request }: Route.ActionArgs) {
   // ...which we can see from logging the values
   const { email, password } = submission.payload as FormSchema
 
-  const [getUserResult, getUserError] = await runAsync(
-    getUserWithRoomAndPassword,
-    {
-      email,
-    }
+  const [getUserResult, getUserError] = await handlePromise(
+    getUserWithRoomAndPassword({ email })
   )
 
   if (

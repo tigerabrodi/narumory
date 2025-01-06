@@ -18,7 +18,7 @@ import {
   FORM_INTENT_VALUES,
   ROUTES,
 } from '~/lib/constants'
-import { runAsync } from '~/lib/utils'
+import { handlePromise } from '~/lib/utils'
 import { TAB_VALUES } from './constants'
 import { createUser, getUserByEmailOrUsername } from './db-queries'
 
@@ -149,12 +149,11 @@ export async function action({ request }: Route.ActionArgs) {
   // ...which we can see from logging the values
   const { username, email, password } = submission.payload as FormSchema
 
-  const [getUserResult, getUserError] = await runAsync(
-    getUserByEmailOrUsername,
-    {
+  const [getUserResult, getUserError] = await handlePromise(
+    getUserByEmailOrUsername({
       email,
       username,
-    }
+    })
   )
 
   if (getUserError) throw new Error('Connection to database failed')
@@ -172,11 +171,13 @@ export async function action({ request }: Route.ActionArgs) {
     })
   }
 
-  const [createUserResult, error] = await runAsync(createUser, {
-    username,
-    email,
-    password,
-  })
+  const [createUserResult, error] = await handlePromise(
+    createUser({
+      username,
+      email,
+      password,
+    })
+  )
 
   if (error || !createUserResult?.user?.room)
     return submission.reply({
