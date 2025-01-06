@@ -18,13 +18,17 @@ export async function loader({ params }: Route.LoaderArgs) {
     roomCode,
   })
 
-  return { room }
+  return {
+    ownerEmail: room?.owner.email,
+    roomCode: room?.code,
+    roomName: room?.name,
+  }
 }
 
 export default function RoomDetail({ loaderData }: Route.ComponentProps) {
   return (
     <LiveblocksProvider authEndpoint="/api/liveblocks/auth">
-      <RoomDetailProvider room={loaderData.room}>
+      <RoomDetailProvider roomData={loaderData}>
         <RoomWrapper />
       </RoomDetailProvider>
     </LiveblocksProvider>

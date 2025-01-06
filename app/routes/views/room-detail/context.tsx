@@ -2,22 +2,22 @@ import type { Route } from '@rr-views/room-detail/+types/room'
 import { createContext, useContext } from 'react'
 
 type RoomDetailContextType = {
-  room: Route.ComponentProps['loaderData']['room']
+  roomData: Route.ComponentProps['loaderData']
 }
 
-export const RoomDetailContext = createContext<RoomDetailContextType>({
-  room: null,
-})
+export const RoomDetailContext = createContext<RoomDetailContextType | null>(
+  null
+)
 
 export function RoomDetailProvider({
-  room,
+  roomData,
   children,
 }: {
-  room: Route.ComponentProps['loaderData']['room']
+  roomData: Route.ComponentProps['loaderData']
   children: React.ReactNode
 }) {
   return (
-    <RoomDetailContext.Provider value={{ room }}>
+    <RoomDetailContext.Provider value={{ roomData }}>
       {children}
     </RoomDetailContext.Provider>
   )
