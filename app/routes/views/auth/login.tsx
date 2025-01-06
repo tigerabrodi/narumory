@@ -20,8 +20,8 @@ import {
 } from '~/lib/constants'
 import { PasswordService } from '~/lib/password-service.server.'
 import { handlePromise } from '~/lib/utils'
-import { TAB_VALUES } from './constants'
-import { getUserWithRoomAndPassword } from './db-queries'
+import { TAB_VALUES } from './lib/constants'
+import { getUserWithRoomAndPassword } from './lib/db-queries'
 
 const formSchema = z.object({
   email: z

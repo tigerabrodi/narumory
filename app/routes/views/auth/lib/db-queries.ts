@@ -1,6 +1,6 @@
 import { prisma } from '~/lib/db.server'
 import { PasswordService } from '~/lib/password-service.server.'
-import { generateUniqueRoomCode } from '~/lib/room.server'
+import { generateUniqueRoomCode } from './utils'
 
 export async function getUserByEmailOrUsername({
   email,

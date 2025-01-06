@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Tabs, TabsList, TabsTrigger } from '~/components/ui/tabs'
 import { getUserIdFromRequest, redirectAuthUserToRoom } from '~/lib/auth.server'
 import { ROUTES } from '~/lib/constants'
-import { TAB_VALUES } from './constants'
+import { TAB_VALUES } from './lib/constants'
 
 export async function loader({ request }: Route.LoaderArgs) {
   const userId = await getUserIdFromRequest({ request })

@@ -19,8 +19,8 @@ import {
   ROUTES,
 } from '~/lib/constants'
 import { handlePromise } from '~/lib/utils'
-import { TAB_VALUES } from './constants'
-import { createUser, getUserByEmailOrUsername } from './db-queries'
+import { TAB_VALUES } from './lib/constants'
+import { createUser, getUserByEmailOrUsername } from './lib/db-queries'
 
 const formSchema = z
   .object({
