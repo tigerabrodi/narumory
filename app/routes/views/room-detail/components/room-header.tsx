@@ -2,7 +2,7 @@ import { Copy } from 'lucide-react'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { useToast } from '~/hooks/use-toast'
-import { useRoomDetail } from '../lib/context'
+import { useRoomDetail } from '../lib/room-context'
 
 type RoomHeaderProps = {
   actions?: React.ReactNode // For flexible right-side actions

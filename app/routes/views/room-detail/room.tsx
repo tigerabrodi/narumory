@@ -1,8 +1,10 @@
-import { LiveList, LiveMap } from '@liveblocks/client'
+import { LiveList, LiveMap, LiveObject } from '@liveblocks/client'
 import {
   ClientSideSuspense,
   LiveblocksProvider,
   RoomProvider,
+  useBroadcastEvent,
+  useEventListener,
   useMutation,
   useOthers,
   useOthersListener,
@@ -12,6 +14,7 @@ import {
   useUpdateMyPresence,
 } from '@liveblocks/react/suspense'
 import type { Route } from '@rr-views/room-detail/+types/room'
+import { ROOM_EVENTS, type GameCard, type PlayerScore } from 'liveblocks.config'
 import { useMemo } from 'react'
 import { generatePath, Link, Outlet, redirect, useParams } from 'react-router'
 import { Button } from '~/components/ui/button'
@@ -19,13 +22,19 @@ import { ScrollArea } from '~/components/ui/scroll-area'
 import { useToast } from '~/hooks/use-toast'
 import { requireAuth } from '~/lib/auth.server'
 import { ROUTES } from '~/lib/constants'
+import { Countdown } from './components/countdown'
 import { Cursor } from './components/cursor'
 import { GameGrid } from './components/game-grid'
 import { PlayerCard } from './components/player-card'
 import { RoomHeader } from './components/room-header'
-import { GAME_STATES, MINIMUM_PLAYERS_TO_START } from './lib/constants'
-import { RoomDetailProvider, useRoomDetail } from './lib/context'
+import { createGameCards } from './lib/cards-generation'
+import {
+  GAME_STATES,
+  MINIMUM_PLAYERS_TO_START,
+  TOTAL_PAIRS,
+} from './lib/constants'
 import { getRoomWithOwner } from './lib/db-queries'
+import { RoomDetailProvider, useRoomDetail } from './lib/room-context'
 import { getColorById, toPlayerStateKey } from './lib/utils'
 
 const LIVEBLOCKS_AUTH_ENDPOINT = '/api/liveblocks/auth'
@@ -113,7 +122,7 @@ function RoomWrapper() {
 }
 
 function GameRoom() {
-  const { roomData } = useRoomDetail()
+  const { roomData, showCountdown, setShowCountdown } = useRoomDetail()
 
   // we use emails as ids
   const myEmail = useSelf((self) => self.info.email)
@@ -121,41 +130,52 @@ function GameRoom() {
 
   const updateMyPresence = useUpdateMyPresence()
 
+  useEventListener(({ event }) => {
+    if (event.type === ROOM_EVENTS.GAME_STARTING) {
+      setShowCountdown(true)
+    }
+  })
+
   return (
-    <div
-      className="min-h-screen p-8"
-      onPointerMove={(event) => {
-        updateMyPresence({
-          cursor: {
-            x: Math.round(event.clientX),
-            y: Math.round(event.clientY),
-          },
-        })
-      }}
-      onPointerLeave={() =>
-        updateMyPresence({
-          cursor: null,
-        })
-      }
-    >
-      <RoomEvents />
-      <CursorPresence />
+    <>
+      {showCountdown && (
+        <Countdown onFinished={() => setShowCountdown(false)} />
+      )}
+      <div
+        className="min-h-screen p-8"
+        onPointerMove={(event) => {
+          updateMyPresence({
+            cursor: {
+              x: Math.round(event.clientX),
+              y: Math.round(event.clientY),
+            },
+          })
+        }}
+        onPointerLeave={() =>
+          updateMyPresence({
+            cursor: null,
+          })
+        }
+      >
+        <RoomEvents />
+        <CursorPresence />
 
-      <div className="container mx-auto">
-        <div className="flex flex-col gap-6">
-          {isOwner ? <OwnerHeader /> : <PlayerHeader />}
+        <div className="container mx-auto">
+          <div className="flex flex-col gap-6">
+            {isOwner ? <OwnerHeader /> : <PlayerHeader />}
 
-          <div className="grid grid-cols-[300px_1fr] gap-10">
-            <PlayerList />
+            <div className="grid grid-cols-[300px_1fr] gap-10">
+              <PlayerList />
 
-            <div className="relative">
-              <GameGrid className="opacity-25" />
-              {isOwner ? <OwnerOverlay /> : <PlayerOverlay />}
+              <div className="relative">
+                <GameGrid className="opacity-25" />
+                {isOwner ? <OwnerOverlay /> : <PlayerOverlay />}
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }
 
@@ -272,6 +292,57 @@ function useGetWinner() {
   return winner
 }
 
+function useStartGame() {
+  const broadcast = useBroadcastEvent()
+  const { setShowCountdown } = useRoomDetail()
+
+  const startGame = useMutation(
+    ({ storage, self, others }) => {
+      // Generate fresh shuffled cards
+      const gameCards: Array<LiveObject<GameCard>> = createGameCards().map(
+        (card) => new LiveObject(card)
+      )
+
+      const allPlayers = [self.id, ...others.map((other) => other.id)]
+      const randomPlayerIndex = Math.floor(Math.random() * allPlayers.length)
+
+      storage.set('state', GAME_STATES.IN_PROGRESS)
+
+      // Might be configurable in the future
+      storage.set('totalPairs', TOTAL_PAIRS)
+      storage.set('totalPairsMatched', 0)
+      storage.set('currentTurnPlayerId', allPlayers[randomPlayerIndex])
+      storage.set('firstSelectedId', null)
+      storage.set('secondSelectedId', null)
+      storage.set('animatingMatchIds', [])
+      storage.set('animatingErrorIds', [])
+      storage.set('canSelect', true)
+      storage.set('winningPlayerId', null)
+
+      const playerStates = new LiveMap<string, LiveObject<PlayerScore>>()
+      allPlayers.forEach((playerId) => {
+        playerStates.set(
+          playerId,
+          new LiveObject<PlayerScore>({
+            collectedPairIds: [],
+            pairsCount: 0,
+          })
+        )
+      })
+
+      storage.set('playerStates', playerStates)
+      storage.set('cards', new LiveList(gameCards))
+
+      // Start countdown
+      setShowCountdown(true)
+      broadcast({ type: ROOM_EVENTS.GAME_STARTING })
+    },
+    [broadcast, setShowCountdown]
+  )
+
+  return startGame
+}
+
 // TODO: add finished overlay
 // currently lobby state overlay is done
 function PlayerOverlay() {
@@ -302,19 +373,26 @@ function PlayerOverlay() {
 // TODO: add finished overlay
 // currently lobby state overlay is done
 function OwnerOverlay() {
-  const playersCount = useOthers((others) => others.length)
-  const isStartButtonDisabled = playersCount < MINIMUM_PLAYERS_TO_START
+  const otherPlayers = useOthers((others) => others.length)
+  const totalPlayers = otherPlayers + 1
+  const isStartButtonDisabled = totalPlayers < MINIMUM_PLAYERS_TO_START
 
   const gameState = useStorage((root) => root.state)
 
   const winner = useGetWinner()
+
+  const startGame = useStartGame()
 
   if (gameState === GAME_STATES.LOBBY) {
     return (
       <Overlay
         title="Waiting for players..."
         description="Minimum 2 players required to start"
-        actions={<Button disabled={isStartButtonDisabled}>Start Game</Button>}
+        actions={
+          <Button disabled={isStartButtonDisabled} onClick={startGame}>
+            Start Game
+          </Button>
+        }
       />
     )
   }
@@ -325,7 +403,9 @@ function OwnerOverlay() {
         title="Game Over!"
         description={`${winner.username} won with ${winner.score} pairs!`}
         actions={
-          <Button disabled={isStartButtonDisabled}>Start New Game</Button>
+          <Button disabled={isStartButtonDisabled} onClick={startGame}>
+            Start New Game
+          </Button>
         }
       />
     )

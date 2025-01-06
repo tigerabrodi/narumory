@@ -1,8 +1,10 @@
 import type { Route } from '@rr-views/room-detail/+types/room'
-import { createContext, useContext } from 'react'
+import { createContext, useContext, useState } from 'react'
 
 type RoomDetailContextType = {
   roomData: Route.ComponentProps['loaderData']
+  showCountdown: boolean
+  setShowCountdown: (show: boolean) => void
 }
 
 export const RoomDetailContext = createContext<RoomDetailContextType | null>(
@@ -16,8 +18,12 @@ export function RoomDetailProvider({
   roomData: Route.ComponentProps['loaderData']
   children: React.ReactNode
 }) {
+  const [showCountdown, setShowCountdown] = useState(false)
+
   return (
-    <RoomDetailContext.Provider value={{ roomData }}>
+    <RoomDetailContext.Provider
+      value={{ roomData, showCountdown, setShowCountdown }}
+    >
       {children}
     </RoomDetailContext.Provider>
   )

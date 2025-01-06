@@ -1,16 +1,23 @@
 import { LiveList, LiveMap, LiveObject } from '@liveblocks/client'
 
-type GameCard = {
+export type GameCard = {
   id: string
   pairId: number
   image: string
   isMatched: boolean
 }
 
-type PlayerScore = {
+export type PlayerScore = {
   collectedPairIds: Array<number>
   pairsCount: number
 }
+
+export const ROOM_EVENTS = {
+  GAME_STARTING: 'GAME_STARTING',
+  GAME_FINISHED: 'GAME_FINISHED',
+  MATCH_SOUND: 'MATCH_SOUND',
+  ERROR_SOUND: 'ERROR_SOUND',
+} as const
 
 declare global {
   interface Liveblocks {
@@ -46,10 +53,10 @@ declare global {
 
     // Broadcast events for sounds
     RoomEvent:
-      | { type: 'GAME_STARTING' }
-      | { type: 'GAME_FINISHED' }
-      | { type: 'MATCH_SOUND' }
-      | { type: 'ERROR_SOUND' }
+      | { type: typeof ROOM_EVENTS.GAME_STARTING }
+      | { type: typeof ROOM_EVENTS.GAME_FINISHED }
+      | { type: typeof ROOM_EVENTS.MATCH_SOUND }
+      | { type: typeof ROOM_EVENTS.ERROR_SOUND }
 
     // User metadata from auth
     UserMeta: {

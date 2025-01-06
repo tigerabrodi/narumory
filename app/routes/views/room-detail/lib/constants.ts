@@ -38,3 +38,5 @@ export const GAME_STATES = {
 } as const
 
 export const MINIMUM_PLAYERS_TO_START = 2
+
+export const TOTAL_PAIRS = 32
