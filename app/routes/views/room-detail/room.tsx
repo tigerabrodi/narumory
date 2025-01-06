@@ -252,7 +252,7 @@ function OwnerOverlay() {
 function CursorPresence() {
   const others = useOthersMapped((other) => ({
     cursor: other.presence.cursor,
-    username: other.presence.username,
+    username: other.info.username,
   }))
 
   return others.map(
