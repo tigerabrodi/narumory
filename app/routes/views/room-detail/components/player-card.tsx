@@ -10,6 +10,7 @@ type PlayerCardProps = {
   isCurrentTurn: boolean
   isWinner: boolean
   color: (typeof COLORS)[number]
+  isInGame: boolean
 }
 
 export function PlayerCard({
@@ -18,6 +19,7 @@ export function PlayerCard({
   isCurrentTurn,
   isWinner,
   color,
+  isInGame,
 }: PlayerCardProps) {
   const initials = username
     .split(' ')
@@ -30,6 +32,7 @@ export function PlayerCard({
     <Card
       className={cn('flex items-center gap-4 p-4', {
         'bg-primary/10': isCurrentTurn,
+        'opacity-30': !isInGame,
       })}
     >
       <Avatar className="ring-2 ring-green-500">

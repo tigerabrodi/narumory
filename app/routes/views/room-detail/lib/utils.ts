@@ -57,8 +57,8 @@ export async function getColorByKeyAsync({
  * @param id - The id to use to get the color
  * @returns The color from the COLORS array
  */
-export function getColorById(id: number) {
-  return COLORS[id % COLORS.length]
+export function getColorByConnectionId(connectionId: number) {
+  return COLORS[connectionId % COLORS.length]
 }
 
 /**

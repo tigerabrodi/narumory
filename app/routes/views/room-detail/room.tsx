@@ -21,14 +21,7 @@ import {
   type PlayerStates,
 } from 'liveblocks.config'
 import { useMemo } from 'react'
-import {
-  generatePath,
-  Link,
-  Outlet,
-  redirect,
-  useNavigate,
-  useParams,
-} from 'react-router'
+import { generatePath, Link, Outlet, redirect, useParams } from 'react-router'
 import { Button } from '~/components/ui/button'
 import { ScrollArea } from '~/components/ui/scroll-area'
 import { useToast } from '~/hooks/use-toast'
@@ -47,7 +40,7 @@ import {
 } from './lib/constants'
 import { getRoomByOwnerId, getRoomByRoomCode } from './lib/db-queries'
 import { RoomDetailProvider, useRoomDetail } from './lib/room-context'
-import { getColorById, toPlayerStateKey } from './lib/utils'
+import { getColorByConnectionId } from './lib/utils'
 
 const LIVEBLOCKS_AUTH_ENDPOINT = '/api/liveblocks/auth'
 
@@ -460,7 +453,7 @@ function CursorPresence() {
           x={presence.cursor.x}
           y={presence.cursor.y}
           username={presence.username}
-          color={getColorById(connectionId)}
+          color={getColorByConnectionId(connectionId)}
         />
       )
   )
@@ -481,12 +474,8 @@ function getNextPlayerId(
 }
 
 function RoomEvents() {
-  const toast = useToast()
-  const gameState = useStorage((root) => root.state)
-  const selfConnectionId = useSelf((self) => self.connectionId)
-  const navigate = useNavigate()
+  const { toast } = useToast()
   const stopGame = useStopGame()
-  const { roomData } = useRoomDetail()
 
   const handleUserLeave = useMutation(
     ({ storage, others }, user: User) => {
@@ -499,45 +488,31 @@ function RoomEvents() {
 
       // Move to next player if player leaving was current turn
       const wasCurrentTurn = storage.get('currentTurnPlayerId') === user.id
+
       if (wasCurrentTurn) {
         const nextPlayer = getNextPlayerId(user.id, storage)
         storage.set('currentTurnPlayerId', nextPlayer)
       }
 
       // Stop game is owner is alone
-      // they could do it themselves but why not help them
+      // owner could do it themselves but why not help them
       if (remainingPlayers === 0) {
+        toast({
+          title: 'No players left, stopping game',
+        })
         stopGame()
       }
     },
-    [stopGame]
+    [stopGame, toast]
   )
-
-  const handleGameInProgressJoin = () => {
-    toast.toast({
-      title: 'Game already in progress',
-      variant: 'destructive',
-    })
-
-    void navigate(
-      generatePath(ROUTES.roomDetail, { roomCode: roomData.myRoomCode })
-    )
-  }
 
   useOthersListener(({ type, user }) => {
     if (!user?.info?.username) return
 
-    const isSelf = user.connectionId === selfConnectionId
-    const isGameInProgress = gameState === GAME_STATES.IN_PROGRESS
-
     if (type === 'enter') {
-      if (isGameInProgress && isSelf) {
-        handleGameInProgressJoin()
-      } else {
-        toast.toast({
-          title: `${user.info.username} joined the game`,
-        })
-      }
+      toast({
+        title: `${user.info.username} joined the game`,
+      })
     }
     if (type === 'leave') {
       handleUserLeave(user)
@@ -549,12 +524,16 @@ function RoomEvents() {
 
 function PlayerList() {
   const self = useSelf((me) => ({
-    connectionId: me.connectionId,
+    id: me.id,
     username: me.info.username,
+    connectionId: me.connectionId,
   }))
+
+  const gameState = useStorage((root) => root.state)
 
   const others = useOthersMapped((other) => ({
     username: other.info.username,
+    id: other.id,
   }))
 
   const playerStates = useStorage((root) => root.playerStates)
@@ -564,39 +543,37 @@ function PlayerList() {
   const allPlayers = useMemo(
     () => [
       {
-        id: toPlayerStateKey(self.connectionId),
+        id: self.id,
         username: self.username,
-        score:
-          playerStates?.get(toPlayerStateKey(self.connectionId))?.pairsCount ??
-          0,
-        isCurrentTurn: Boolean(
-          currentTurnId && currentTurnId === toPlayerStateKey(self.connectionId)
-        ),
-        isWinner: Boolean(
-          winningPlayerId &&
-            winningPlayerId === toPlayerStateKey(self.connectionId)
-        ),
-        color: getColorById(self.connectionId),
+        score: playerStates?.get(self.id)?.pairsCount ?? 0,
+        isCurrentTurn: Boolean(currentTurnId && currentTurnId === self.id),
+        isWinner: Boolean(winningPlayerId && winningPlayerId === self.id),
+        color: getColorByConnectionId(self.connectionId),
+        // if player state exists, all good!
+        // if not, the only two cases they're allowed to not exist in case player hasn't played a game in the room yet
+        // are LOBBY and FINISHED
+        // FINISHED because a player might join a finished game to participate in the next game
+        // FINISHED is just lobby state with a winner
+        isInGame:
+          playerStates.has(self.id) || gameState !== GAME_STATES.IN_PROGRESS,
       },
-      ...others.map(([connectionId, { username }]) => ({
-        id: toPlayerStateKey(connectionId),
+      ...others.map(([connectionId, { username, id }]) => ({
+        id,
         username: username,
-        score:
-          playerStates?.get(toPlayerStateKey(connectionId))?.pairsCount ?? 0,
-        isCurrentTurn: Boolean(
-          currentTurnId && currentTurnId === toPlayerStateKey(connectionId)
-        ),
-        isWinner: Boolean(
-          winningPlayerId && winningPlayerId === toPlayerStateKey(connectionId)
-        ),
-        color: getColorById(connectionId),
+        score: playerStates?.get(id)?.pairsCount ?? 0,
+        isCurrentTurn: Boolean(currentTurnId && currentTurnId === id),
+        isWinner: Boolean(winningPlayerId && winningPlayerId === id),
+        color: getColorByConnectionId(connectionId),
+        isInGame: playerStates.has(id) || gameState !== GAME_STATES.IN_PROGRESS,
       })),
     ],
     [
       currentTurnId,
+      gameState,
       others,
       playerStates,
       self.connectionId,
+      self.id,
       self.username,
       winningPlayerId,
     ]
