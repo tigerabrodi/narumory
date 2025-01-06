@@ -56,7 +56,7 @@ export async function createUser({
   return { user }
 }
 
-export async function getUserWithRoomAndPassword({ email }: { email: string }) {
+export async function getUserByEmail({ email }: { email: string }) {
   const user = await prisma.user.findUnique({
     where: { email },
     include: {

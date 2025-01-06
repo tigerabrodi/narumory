@@ -20,7 +20,7 @@ import {
 import { Label } from '~/components/ui/label'
 import { requireAuth } from '~/lib/auth.server'
 import { FORM_INTENT_KEY, FORM_INTENT_VALUES, ROUTES } from '~/lib/constants'
-import { getRoomWithOwner } from './lib/db-queries'
+import { getRoomByRoomCode } from './lib/db-queries'
 
 const formSchema = z.object({
   roomCode: z.string({ required_error: 'Room code is required' }),
@@ -93,7 +93,7 @@ export async function action({ request }: Route.ActionArgs) {
 
   const { roomCode } = submission.payload as FormSchema
 
-  const room = await getRoomWithOwner({
+  const room = await getRoomByRoomCode({
     roomCode,
   })
 

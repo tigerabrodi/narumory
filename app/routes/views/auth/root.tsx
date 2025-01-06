@@ -14,6 +14,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 
   if (!userId && !isOnLoginPage && !isOnRegisterPage)
     return redirect(generatePath(ROUTES.login))
+
   if (!userId) return null
 
   return redirectAuthUserToRoom({ userId })

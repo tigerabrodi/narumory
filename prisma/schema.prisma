@@ -26,7 +26,6 @@ model User {
 
   password Password? @relation("UserToPassword")
   room     Room?     @relation("RoomToUser")
-  roomId   String?   @unique
 }
 
 model Password {
@@ -38,9 +37,10 @@ model Password {
 }
 
 model Room {
-  id    String @id @default(cuid())
-  name  String
-  code  String @unique
-  owner User   @relation("RoomToUser", fields: [ownerId], references: [id], onDelete: Cascade)
+  id      String @id @default(cuid())
+  name    String
+  code    String @unique
+  owner   User   @relation("RoomToUser", fields: [ownerId], references: [id], onDelete: Cascade)
   ownerId String @unique
 }
+

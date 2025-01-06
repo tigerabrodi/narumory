@@ -21,7 +21,7 @@ import {
 import { PasswordService } from '~/lib/password-service.server.'
 import { handlePromise } from '~/lib/utils'
 import { TAB_VALUES } from './lib/constants'
-import { getUserWithRoomAndPassword } from './lib/db-queries'
+import { getUserByEmail } from './lib/db-queries'
 
 const formSchema = z.object({
   email: z
@@ -117,7 +117,7 @@ export async function action({ request }: Route.ActionArgs) {
   const { email, password } = submission.payload as FormSchema
 
   const [getUserResult, getUserError] = await handlePromise(
-    getUserWithRoomAndPassword({ email })
+    getUserByEmail({ email })
   )
 
   if (
