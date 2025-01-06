@@ -58,6 +58,12 @@ export default tseslint.config(
       '@typescript-eslint/only-throw-error': 'off',
       ...react.configs.recommended.rules,
       ...react.configs['jsx-runtime'].rules,
+      'react-hooks/exhaustive-deps': [
+        'error',
+        {
+          additionalHooks: 'useMutation',
+        },
+      ],
     },
   }
 )
