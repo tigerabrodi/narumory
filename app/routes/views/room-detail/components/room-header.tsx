@@ -22,7 +22,7 @@ export function RoomHeader({ actions }: RoomHeaderProps) {
 
   return (
     <div className="flex items-center justify-between">
-      <h1 className="text-2xl font-bold">{roomData.roomName}</h1>
+      <h1 className="font-ninja text-2xl">{roomData.roomName}</h1>
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2">
           <Input value={roomData.roomCode} readOnly className="w-32" />
