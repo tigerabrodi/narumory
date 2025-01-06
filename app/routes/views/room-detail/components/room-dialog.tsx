@@ -1,19 +1,26 @@
-import { useNavigate } from 'react-router'
 import { Button } from '~/components/ui/button'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from '~/components/ui/dialog'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 
-export default function Join() {
-  const navigation = useNavigate()
+interface RoomDialogProps {
+  disabled?: boolean
+}
 
+export function RoomDialog({ disabled }: RoomDialogProps) {
   return (
-    <Dialog open onOpenChange={() => void navigation('..')}>
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="outline" disabled={disabled}>
+          Go to Room
+        </Button>
+      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Join Room</DialogTitle>
