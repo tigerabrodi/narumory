@@ -51,7 +51,7 @@ export default tseslint.config(
           selector: 'variable',
           types: ['boolean'],
           format: ['PascalCase'],
-          prefix: ['is', 'should', 'has', 'are', 'can', 'was'],
+          prefix: ['is', 'should', 'has', 'are', 'can', 'was', 'show'],
         },
       ],
       // prevents throw data() when working with rr7
