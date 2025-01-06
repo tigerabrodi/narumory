@@ -1,3 +1,5 @@
+import type { LiveObject } from '@liveblocks/client'
+import type { PlayerStates } from 'liveblocks.config'
 import { COLORS } from './constants'
 
 // BELOW FUNCTION IS NOT USED ANYMORE
@@ -61,12 +63,16 @@ export function getColorByConnectionId(connectionId: number) {
   return COLORS[connectionId % COLORS.length]
 }
 
-/**
- * Convert a connectionId to a player state key
- * connectionId by default is a number, we need it as a string for player keys
- * @param connectionId - The connectionId to convert
- * @returns The player state key
- */
-export function toPlayerStateKey(connectionId: number): string {
-  return String(connectionId)
+export function getNextPlayerId(
+  currentId: string,
+  storage: LiveObject<{ playerStates: PlayerStates }>
+) {
+  // Get ordered list of players from storage
+  const playerStates = storage.get('playerStates')
+  const playerIds = Array.from(playerStates.keys())
+
+  const currentIndex = playerIds.indexOf(currentId)
+  const nextIndex = (currentIndex + 1) % playerIds.length
+
+  return playerIds[nextIndex]
 }

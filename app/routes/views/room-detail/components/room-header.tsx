@@ -1,7 +1,12 @@
+import { useStorage } from '@liveblocks/react/suspense'
 import { Copy } from 'lucide-react'
+import { generatePath, Link } from 'react-router'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { useToast } from '~/hooks/use-toast'
+import { ROUTES } from '~/lib/constants'
+import { useStopGame } from '../hooks/stop-game'
+import { GAME_STATES } from '../lib/constants'
 import { useRoomDetail } from '../lib/room-context'
 
 type RoomHeaderProps = {
@@ -33,5 +38,64 @@ export function RoomHeader({ actions }: RoomHeaderProps) {
         {actions}
       </div>
     </div>
+  )
+}
+
+export function OwnerHeader() {
+  const { roomData } = useRoomDetail()
+  const gameState = useStorage((root) => root.state)
+
+  const stopGame = useStopGame()
+
+  return (
+    <RoomHeader
+      actions={
+        gameState === GAME_STATES.IN_PROGRESS ? (
+          <div className="flex gap-4">
+            <Button variant="outline" disabled>
+              Go to room
+            </Button>
+            {/* TODO: add stop game button logic */}
+            <Button variant="destructive" onClick={stopGame}>
+              Stop Game
+            </Button>
+          </div>
+        ) : (
+          <Button variant="outline" asChild>
+            <Link
+              to={generatePath(ROUTES.roomJoin, {
+                roomCode: roomData.roomCode,
+              })}
+              prefetch="intent"
+            >
+              Go to room
+            </Link>
+          </Button>
+        )
+      }
+    />
+  )
+}
+
+// TODO: handle player leaving room
+// - show dialog
+// - make sure to remove the player from player states
+// - if game was playing and it is their progress, move to next player
+export function PlayerHeader() {
+  const { roomData } = useRoomDetail()
+
+  return (
+    <RoomHeader
+      actions={
+        <Button variant="destructive" asChild>
+          <Link
+            to={generatePath(ROUTES.leaveRoom, { roomCode: roomData.roomCode })}
+            prefetch="intent"
+          >
+            Leave Room
+          </Link>
+        </Button>
+      }
+    />
   )
 }
