@@ -54,6 +54,8 @@ export default tseslint.config(
           prefix: ['is', 'should', 'has', 'are', 'can', 'was'],
         },
       ],
+      // prevents throw data() when working with rr7
+      '@typescript-eslint/only-throw-error': 'off',
       ...react.configs.recommended.rules,
       ...react.configs['jsx-runtime'].rules,
     },
