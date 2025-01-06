@@ -24,6 +24,11 @@
     --input: 0 0% 14.9%;
     --ring: 24 100% 50%;
     --radius: 0.75rem;
+
+    --cursor: 217 57% 15%; /* HSL equivalent of #162137 */
+    /* Default positions - will be overridden */
+    --cursor-x: 0px;
+    --cursor-y: 0px;
   }
 }
 

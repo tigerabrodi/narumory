@@ -1,6 +1,14 @@
 import type { Config } from 'tailwindcss'
 import tailwindcssAnimate from 'tailwindcss-animate'
 
+export const CSS_VARS = {
+  cursor: {
+    x: '--cursor-x',
+    y: '--cursor-y',
+    fill: '--cursor-fill',
+  },
+} as const
+
 export default {
   darkMode: ['class'],
   content: ['./app/**/{**,.client,.server}/**/*.{js,jsx,ts,tsx}'],
@@ -14,7 +22,15 @@ export default {
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
       },
+      dropShadow: {
+        cursor: '0 0 1px var(--cursor-fill)',
+      },
       colors: {
+        cursor: {
+          stroke: 'hsl(var(--cursor))', // Fixed dark blue
+          fill: `var(${CSS_VARS.cursor.fill})`, // Dynamic user color
+          badge: `var(${CSS_VARS.cursor.fill})`,
+        },
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         card: {
