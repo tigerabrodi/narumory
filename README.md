@@ -5,17 +5,17 @@ https://github.com/user-attachments/assets/783b5819-73d3-4248-a3f6-bf7fc4ed5123
   <a href="https://narumory.com">Narumory</a>
 </h1>
   <p>
-    An open source Naruto Memory Game. Join rooms and play with friends!
+    An open source Naruto Memory Game. Join rooms and play with friends! 🍥
   </p>
 </div>
 
-## Why I made this
+## Why I made this 🦊
 
 I love online games that are quick and easy to play online. Especially ones without tedious signup processes and that let you play right away.
 
 I enjoy playing such games with friends and co-workers. This is the first multiplayer one that I've built, I got more to come.
 
-## Tech stack
+## Tech stack 💻
 
 - [Liveblocks](https://liveblocks.io/) for multiplayer
 - [Tailwind](https://tailwindcss.com/) for styling
@@ -24,7 +24,7 @@ I enjoy playing such games with friends and co-workers. This is the first multip
 - [Prisma](https://prisma.io/) for orm and database (PostgreSQL)
 - [Vercel](https://vercel.com/) for hosting and web analytics
 
-## Cloning & running
+## Cloning & running 🏄
 
 1. Clone the repo: `git clone https://github.com/tigerabrodi/narumory`
 2. Create a `.env` file.
@@ -42,7 +42,7 @@ LIVEBLOCKS_SECRET_KEY=""
 - SESSION_SECRET: Any random string, you can generate one with `openssl rand -base64 32` in the terminal
 - LIVEBLOCKS_SECRET_KEY: This is something you get over at [Liveblocks](https://liveblocks.io/).
 
-## Bugs & Contributing
+## Bugs & Contributing 🐛
 
 I assume you've it up and running by yourself.
 
@@ -54,4 +54,4 @@ If it's something that I think should be addressed, we can discuss the solution 
 
 ## License
 
-This project is licensed under the MIT License <3
+This project is licensed under the MIT License ❤️
