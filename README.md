@@ -37,4 +37,4 @@ LIVEBLOCKS_SECRET_KEY=""
 
 - DATABASE_URL: Any postgres database url. I used Prisma's postgres.
 - SESSION_SECRET: Any random string, you can generate one with `openssl rand -base64 32` in the terminal
-- LIVEBLOCKS_SECRET_KEY: This is something you create over at [Liveblocks](https://liveblocks.io/).
+- LIVEBLOCKS_SECRET_KEY: This is something you get over at [Liveblocks](https://liveblocks.io/).
