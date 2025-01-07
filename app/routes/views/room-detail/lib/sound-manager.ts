@@ -25,7 +25,7 @@ type SoundEffectConfig = {
 
 class SoundEffectManager {
   private singleSounds: Map<SingleSoundEffectType, HTMLAudioElement> = new Map()
-  private volume: number = 1
+  private volume: number = 0.5
 
   constructor(config: SoundEffectConfig) {
     Object.entries(config).forEach(([type, src]) => {

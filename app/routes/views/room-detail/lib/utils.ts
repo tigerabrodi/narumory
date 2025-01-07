@@ -63,16 +63,43 @@ export function getColorByConnectionId(connectionId: number) {
   return COLORS[connectionId % COLORS.length]
 }
 
-export function getNextPlayerId(
-  currentId: string,
-  storage: LiveObject<{ playerStates: PlayerStates }>
-) {
+export function getNextPlayerId({
+  currentId,
+  playerStates,
+}: {
+  currentId: string
+  playerStates: PlayerStates
+}) {
   // Get ordered list of players from storage
-  const playerStates = storage.get('playerStates')
   const playerIds = Array.from(playerStates.keys())
 
   const currentIndex = playerIds.indexOf(currentId)
   const nextIndex = (currentIndex + 1) % playerIds.length
 
   return playerIds[nextIndex]
+}
+
+export function determineWinner({
+  storage,
+}: {
+  storage: LiveObject<{ playerStates: PlayerStates }>
+}) {
+  const playerStates = storage.get('playerStates')
+  let maxPairs = 0
+  let winners: Array<string> = []
+
+  playerStates.forEach((state, playerId) => {
+    const pairs = state.get('pairsCount')
+    if (pairs > maxPairs) {
+      maxPairs = pairs
+      winners = [playerId]
+    } else if (pairs === maxPairs) {
+      // Handle same score
+      winners.push(playerId)
+    }
+  })
+
+  // If a tie, pick random winner
+  // If length is 1, this will just be the winner
+  return winners[Math.floor(Math.random() * winners.length)]
 }

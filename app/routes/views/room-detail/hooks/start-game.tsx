@@ -1,7 +1,7 @@
-import { LiveList, LiveMap, LiveObject } from '@liveblocks/client'
+import { LiveMap, LiveObject } from '@liveblocks/client'
 import { useBroadcastEvent, useMutation } from '@liveblocks/react/suspense'
-import { ROOM_EVENTS, type GameCard, type PlayerScore } from 'liveblocks.config'
-import { createGameCards } from '../lib/cards-generation'
+import { ROOM_EVENTS, type PlayerScore } from 'liveblocks.config'
+import { createGameCardsLiveList } from '../lib/cards-generation'
 import { GAME_STATES, TOTAL_PAIRS } from '../lib/constants'
 import { useRoomDetail } from '../lib/room-context'
 
@@ -12,9 +12,7 @@ export function useStartGame() {
   const startGame = useMutation(
     ({ storage, self, others }) => {
       // Generate fresh shuffled cards
-      const gameCards: Array<LiveObject<GameCard>> = createGameCards().map(
-        (card) => new LiveObject(card)
-      )
+      const gameCards = createGameCardsLiveList()
 
       const allPlayers = [self.id, ...others.map((other) => other.id)]
       const randomPlayerIndex = Math.floor(Math.random() * allPlayers.length)
@@ -44,7 +42,7 @@ export function useStartGame() {
       })
 
       storage.set('playerStates', playerStates)
-      storage.set('cards', new LiveList(gameCards))
+      storage.set('cards', gameCards)
 
       // Start countdown
       setShowCountdown(true)

@@ -1,3 +1,4 @@
+import { LiveList, LiveObject } from '@liveblocks/client'
 import type { GameCard } from 'liveblocks.config'
 import image1 from '~/assets/images/image-1.png'
 import image10 from '~/assets/images/image-10.png'
@@ -89,8 +90,7 @@ function shuffleCards<T>(array: Array<T>): Array<T> {
   return shuffled
 }
 
-export function createGameCards(): Array<GameCard> {
-  // Create two cards for each definition
+function createGameCards(): Array<GameCard> {
   const cards = CARD_DEFINITIONS.flatMap((def) => [
     {
       id: crypto.randomUUID(),
@@ -107,4 +107,8 @@ export function createGameCards(): Array<GameCard> {
   ])
 
   return shuffleCards(cards)
+}
+
+export function createGameCardsLiveList(): LiveList<LiveObject<GameCard>> {
+  return new LiveList(createGameCards().map((card) => new LiveObject(card)))
 }

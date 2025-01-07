@@ -22,7 +22,7 @@ import { GameGrid } from './components/game-grid'
 import { OwnerOverlay, PlayerOverlay } from './components/overlay'
 import { PlayerCard } from './components/player-card'
 import { OwnerHeader, PlayerHeader } from './components/room-header'
-import { RoomEvents } from './events/room'
+import { RoomPresenceEvents } from './events/room-presence'
 import { GAME_STATES } from './lib/constants'
 import { getRoomByOwnerId, getRoomByRoomCode } from './lib/db-queries'
 import { RoomDetailProvider, useRoomDetail } from './lib/room-context'
@@ -106,7 +106,7 @@ function RoomWrapper() {
         secondSelectedId: null,
         animatingMatchIds: [],
         animatingErrorIds: [],
-        canSelect: true,
+        canSelect: false,
         winningPlayerId: null,
       }}
     >
@@ -153,7 +153,7 @@ function GameRoom() {
           })
         }
       >
-        <RoomEvents />
+        <RoomPresenceEvents />
         <CursorPresence />
 
         <div className="container mx-auto">
@@ -164,7 +164,7 @@ function GameRoom() {
               <PlayerList />
 
               <div className="relative">
-                <GameGrid className="opacity-25" />
+                <GameGrid />
                 {isOwner ? <OwnerOverlay /> : <PlayerOverlay />}
               </div>
             </div>

@@ -1,5 +1,6 @@
 import type { Config } from 'tailwindcss'
 import tailwindcssAnimate from 'tailwindcss-animate'
+import plugin from 'tailwindcss/plugin'
 
 export const CSS_VARS = {
   cursor: {
@@ -14,6 +15,52 @@ export default {
   content: ['./app/**/{**,.client,.server}/**/*.{js,jsx,ts,tsx}'],
   theme: {
     extend: {
+      keyframes: {
+        'match-card': {
+          '0%': {
+            boxShadow: '0 0 0 rgba(34, 197, 94, 0)',
+            transform: 'scale(1)',
+          },
+          '25%': {
+            boxShadow: '0 0 12px rgba(34, 197, 94, 0.7)',
+            transform: 'scale(1.02)',
+          },
+          '50%': {
+            boxShadow: '0 0 5px rgba(34, 197, 94, 0.3)',
+            transform: 'scale(1)',
+          },
+          '75%': {
+            boxShadow: '0 0 10px rgba(34, 197, 94, 0.5)',
+            transform: 'scale(1.01)',
+          },
+          '100%': {
+            boxShadow: '0 0 0 rgba(34, 197, 94, 0)',
+            transform: 'scale(1)',
+          },
+        },
+        'error-card': {
+          '0%, 100%': {
+            transform: 'translateX(0)',
+            boxShadow: '0 0 0 rgba(239, 68, 68, 0)',
+          },
+          '20%': {
+            transform: 'translateX(-5px)',
+            boxShadow: '0 0 10px rgba(239, 68, 68, 0.5)',
+          },
+          '40%': {
+            transform: 'translateX(5px)',
+            boxShadow: '0 0 10px rgba(239, 68, 68, 0.5)',
+          },
+          '60%': {
+            transform: 'translateX(-5px)',
+            boxShadow: '0 0 10px rgba(239, 68, 68, 0.5)',
+          },
+          '80%': {
+            transform: 'translateX(3px)',
+            boxShadow: '0 0 15px rgba(239, 68, 68, 0.5)',
+          },
+        },
+      },
       fontFamily: {
         ninja: ['Ninja', 'sans-serif'], // custom ninja font
       },
@@ -72,7 +119,36 @@ export default {
           '5': 'hsl(var(--chart-5))',
         },
       },
+
+      animation: {
+        'match-card': 'match-card 0.75s ease-in-out',
+        'error-card': 'error-card 0.75s ease-in-out',
+      },
     },
   },
-  plugins: [tailwindcssAnimate],
+  plugins: [
+    tailwindcssAnimate,
+    // Not sure why this happens
+    // annoying
+    // See https://typescript-eslint.io/rules/unbound-method/
+    // i tried this: void and arrow function
+    // still doesn't work
+    // eslint-disable-next-line @typescript-eslint/unbound-method
+    plugin(({ addUtilities }) => {
+      addUtilities({
+        '.transform-style-preserve-3d': {
+          'transform-style': 'preserve-3d',
+        },
+        '.backface-hidden': {
+          'backface-visibility': 'hidden',
+        },
+        '.perspective-1000': {
+          perspective: '1000px',
+        },
+        '.rotate-y-180': {
+          transform: 'rotateY(180deg)',
+        },
+      })
+    }),
+  ],
 } satisfies Config

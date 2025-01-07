@@ -4,7 +4,7 @@ import { useToast } from '~/hooks/use-toast'
 import { useStopGame } from '../hooks/stop-game'
 import { getNextPlayerId } from '../lib/utils'
 
-export function RoomEvents() {
+export function RoomPresenceEvents() {
   const { toast } = useToast()
   const stopGame = useStopGame()
 
@@ -21,7 +21,10 @@ export function RoomEvents() {
       const wasCurrentTurn = storage.get('currentTurnPlayerId') === user.id
 
       if (wasCurrentTurn) {
-        const nextPlayer = getNextPlayerId(user.id, storage)
+        const nextPlayer = getNextPlayerId({
+          currentId: user.id,
+          playerStates,
+        })
         storage.set('currentTurnPlayerId', nextPlayer)
       }
 
