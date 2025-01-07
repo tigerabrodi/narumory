@@ -2,6 +2,10 @@
   "name": "narumory",
   "private": true,
   "type": "module",
+  "license": "MIT",
+  "author": {
+    "name": "Tiger Abrodi"
+  },
   "scripts": {
     "build": "prisma generate && prisma migrate deploy && react-router build && node vercel/prepare.js",
     "dev": "cross-env NODE_ENV=development node ./dev-server.js",
