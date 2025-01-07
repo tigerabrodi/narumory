@@ -26,8 +26,6 @@ function Overlay({
   )
 }
 
-// TODO: add finished overlay
-// currently lobby state overlay is done
 export function PlayerOverlay() {
   const gameState = useStorage((root) => root.state)
   const winner = useGetWinner()
@@ -53,8 +51,6 @@ export function PlayerOverlay() {
   return null
 }
 
-// TODO: add finished overlay
-// currently lobby state overlay is done
 export function OwnerOverlay() {
   const otherPlayers = useOthers((others) => others.length)
   const totalPlayers = otherPlayers + 1

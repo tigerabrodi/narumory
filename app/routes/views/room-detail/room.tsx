@@ -4,33 +4,27 @@ import {
   LiveblocksProvider,
   RoomProvider,
   useEventListener,
-  useOthersMapped,
   useSelf,
-  useStorage,
   useUpdateMyPresence,
 } from '@liveblocks/react/suspense'
 import type { Route } from '@rr-views/room-detail/+types/room'
 import { ROOM_EVENTS } from 'liveblocks.config'
-import { useMemo } from 'react'
 import { generatePath, Outlet, redirect, useParams } from 'react-router'
-import { ScrollArea } from '~/components/ui/scroll-area'
 import { requireAuth } from '~/lib/auth.server'
 import { ROUTES } from '~/lib/constants'
 import { Countdown } from './components/countdown'
 import { CursorPresence } from './components/cursor'
 import { GameGrid } from './components/game-grid'
 import { OwnerOverlay, PlayerOverlay } from './components/overlay'
-import { PlayerCard } from './components/player-card'
+import { PlayerList } from './components/player-list'
 import { OwnerHeader, PlayerHeader } from './components/room-header'
 import { RoomPresenceEvents } from './events/room-presence'
 import { GAME_STATES } from './lib/constants'
 import { getRoomByOwnerId, getRoomByRoomCode } from './lib/db-queries'
 import { RoomDetailProvider, useRoomDetail } from './lib/room-context'
-import { getColorByConnectionId } from './lib/utils'
 
 const LIVEBLOCKS_AUTH_ENDPOINT = '/api/liveblocks/auth'
 
-// TODO: add join dialog
 export async function loader({ params, request }: Route.LoaderArgs) {
   const requireAuthResult = await requireAuth({ request })
 
@@ -172,73 +166,5 @@ function GameRoom() {
         </div>
       </div>
     </>
-  )
-}
-
-function PlayerList() {
-  const self = useSelf((me) => ({
-    id: me.id,
-    username: me.info.username,
-    connectionId: me.connectionId,
-  }))
-
-  const gameState = useStorage((root) => root.state)
-
-  const others = useOthersMapped((other) => ({
-    username: other.info.username,
-    id: other.id,
-  }))
-
-  const playerStates = useStorage((root) => root.playerStates)
-  const currentTurnId = useStorage((root) => root.currentTurnPlayerId)
-  const winningPlayerId = useStorage((root) => root.winningPlayerId)
-
-  const allPlayers = useMemo(
-    () => [
-      {
-        id: self.id,
-        username: self.username,
-        score: playerStates?.get(self.id)?.pairsCount ?? 0,
-        isCurrentTurn: Boolean(currentTurnId && currentTurnId === self.id),
-        isWinner: Boolean(winningPlayerId && winningPlayerId === self.id),
-        color: getColorByConnectionId(self.connectionId),
-        // if player state exists, all good!
-        // if not, the only two cases they're allowed to not exist in case player hasn't played a game in the room yet
-        // are LOBBY and FINISHED
-        // FINISHED because a player might join a finished game to participate in the next game
-        // FINISHED is just lobby state with a winner
-        isInGame:
-          playerStates.has(self.id) || gameState !== GAME_STATES.IN_PROGRESS,
-      },
-      ...others.map(([connectionId, { username, id }]) => ({
-        id,
-        username: username,
-        score: playerStates?.get(id)?.pairsCount ?? 0,
-        isCurrentTurn: Boolean(currentTurnId && currentTurnId === id),
-        isWinner: Boolean(winningPlayerId && winningPlayerId === id),
-        color: getColorByConnectionId(connectionId),
-        isInGame: playerStates.has(id) || gameState !== GAME_STATES.IN_PROGRESS,
-      })),
-    ],
-    [
-      currentTurnId,
-      gameState,
-      others,
-      playerStates,
-      self.connectionId,
-      self.id,
-      self.username,
-      winningPlayerId,
-    ]
-  )
-
-  return (
-    <ScrollArea className="h-[600px] max-h-full rounded-lg border p-4">
-      <div className="flex flex-col gap-4">
-        {allPlayers.map((player) => (
-          <PlayerCard key={player.id} {...player} />
-        ))}
-      </div>
-    </ScrollArea>
   )
 }

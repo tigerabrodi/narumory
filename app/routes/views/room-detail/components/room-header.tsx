@@ -55,7 +55,6 @@ export function OwnerHeader() {
             <Button variant="outline" disabled>
               Go to room
             </Button>
-            {/* TODO: add stop game button logic */}
             <Button variant="destructive" onClick={stopGame}>
               Stop Game
             </Button>
@@ -77,10 +76,6 @@ export function OwnerHeader() {
   )
 }
 
-// TODO: handle player leaving room
-// - show dialog
-// - make sure to remove the player from player states
-// - if game was playing and it is their progress, move to next player
 export function PlayerHeader() {
   const { roomData } = useRoomDetail()
 
