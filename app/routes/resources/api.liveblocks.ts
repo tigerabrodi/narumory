@@ -18,7 +18,7 @@ export async function action({ request }: Route.ActionArgs) {
 
   if (requireAuthResult.type === 'redirect') return requireAuthResult.response
 
-  const user = requireAuthResult.user
+  const { user } = requireAuthResult
 
   const json = jsonSchema.safeParse(await request.json())
 

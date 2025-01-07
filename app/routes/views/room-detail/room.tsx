@@ -30,7 +30,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
 
   if (requireAuthResult.type === 'redirect') throw requireAuthResult.response
 
-  const user = requireAuthResult.user
+  const { user } = requireAuthResult
 
   const { roomCode } = params
 
