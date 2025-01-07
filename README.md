@@ -1,9 +1,9 @@
 https://github.com/user-attachments/assets/783b5819-73d3-4248-a3f6-bf7fc4ed5123
 
 <div align="center">
-  <a href="https://narumory.com">
-    <h1>Narumory</h1>
-  </a>
+<h1 align="center">
+  <a href="https://narumory.com">Narumory</a>
+</h1>
   <p>
     An open source Naruto Memory Game. Join rooms and play with friends!
   </p>
