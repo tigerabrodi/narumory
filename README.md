@@ -1,8 +1,7 @@
+https://github.com/user-attachments/assets/783b5819-73d3-4248-a3f6-bf7fc4ed5123
+
 <div align="center">
   <a href="https://narumory.com">
-    <video width="800" autoplay loop muted playsinline>
-      <source src="https://github.com/user-attachments/assets/783b5819-73d3-4248-a3f6-bf7fc4ed5123" type="video/mp4">
-    </video>
     <h1>Narumory</h1>
   </a>
   <p>
