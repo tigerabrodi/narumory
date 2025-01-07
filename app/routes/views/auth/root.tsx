@@ -6,6 +6,16 @@ import { getUserIdFromRequest, redirectAuthUserToRoom } from '~/lib/auth.server'
 import { ROUTES } from '~/lib/constants'
 import { TAB_VALUES } from './lib/constants'
 
+export function meta() {
+  return [
+    { title: 'Narumory' },
+    {
+      name: 'description',
+      content: 'Sign up to play the Naruto Memory Game',
+    },
+  ]
+}
+
 export async function loader({ request }: Route.LoaderArgs) {
   const userId = await getUserIdFromRequest({ request })
   const path = new URL(request.url).pathname
@@ -29,8 +39,8 @@ export default function AuthPage() {
     <div className="flex min-h-screen items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="flex flex-col gap-1">
-          <CardTitle className="text-center font-ninja text-2xl">
-            Naruto Memory Game
+          <CardTitle className="text-center font-ninja text-2xl text-primary">
+            Narumory
           </CardTitle>
         </CardHeader>
         <CardContent>

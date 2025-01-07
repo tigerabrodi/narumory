@@ -60,6 +60,17 @@ export default {
             boxShadow: '0 0 15px rgba(239, 68, 68, 0.5)',
           },
         },
+        heartbeat: {
+          '0%, 20%, 50%, 80%, 100%': {
+            transform: 'scale(1)',
+          },
+          '40%': {
+            transform: 'scale(1.04)',
+          },
+          '60%': {
+            transform: 'scale(1.02)',
+          },
+        },
       },
       fontFamily: {
         ninja: ['Ninja', 'sans-serif'], // custom ninja font
@@ -123,6 +134,7 @@ export default {
       animation: {
         'match-card': 'match-card 0.75s ease-in-out',
         'error-card': 'error-card 0.75s ease-in-out',
+        heartbeat: 'heartbeat 0.85s ease-in-out infinite',
       },
     },
   },

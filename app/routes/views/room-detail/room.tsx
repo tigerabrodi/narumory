@@ -10,6 +10,7 @@ import {
 import type { Route } from '@rr-views/room-detail/+types/room'
 import { ROOM_EVENTS } from 'liveblocks.config'
 import { generatePath, Outlet, redirect, useParams } from 'react-router'
+import logoImg from '~/assets/images/logo.png'
 import { requireAuth } from '~/lib/auth.server'
 import { ROUTES } from '~/lib/constants'
 import { Countdown } from './components/countdown'
@@ -22,6 +23,16 @@ import { RoomPresenceEvents } from './events/room-presence'
 import { GAME_STATES } from './lib/constants'
 import { getRoomByOwnerId, getRoomByRoomCode } from './lib/db-queries'
 import { RoomDetailProvider, useRoomDetail } from './lib/room-context'
+
+export function meta({ data }: Route.MetaArgs) {
+  return [
+    { title: `${data.roomName} - Narumory` },
+    {
+      name: 'description',
+      content: `Join ${data.roomName} on Narumory and play the Naruto Memory Game`,
+    },
+  ]
+}
 
 const LIVEBLOCKS_AUTH_ENDPOINT = '/api/liveblocks/auth'
 
@@ -66,20 +77,24 @@ export default function RoomDetail({ loaderData }: Route.ComponentProps) {
 }
 
 // TODO: show something nice e.g. logo animatining in the middle
-function RoomLoading() {
-  return <div>Loading...</div>
+function RoomSkeleton() {
+  return (
+    <div className="relative flex min-h-screen w-screen flex-col items-center justify-center">
+      <img
+        src={logoImg}
+        alt="Loading..."
+        className="animate-heartbeat mb-40 w-[300px]"
+      />
+    </div>
+  )
 }
 
 function RoomWrapper() {
   const { roomCode } = useParams<{ roomCode: string }>()
 
-  if (!roomCode) return <RoomLoading />
-
-  // TODO: add error boundary using package react-error-boundary
-
   return (
     <RoomProvider
-      id={roomCode}
+      id={roomCode!}
       // may happen for a split ms
       // otherwise liveblocks picks up the presence quickly
       initialPresence={{
@@ -104,7 +119,7 @@ function RoomWrapper() {
         winningPlayerId: null,
       }}
     >
-      <ClientSideSuspense fallback={<RoomLoading />}>
+      <ClientSideSuspense fallback={<RoomSkeleton />}>
         {() => <GameRoom />}
       </ClientSideSuspense>
     </RoomProvider>
