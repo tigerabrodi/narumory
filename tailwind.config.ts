@@ -132,8 +132,8 @@ export default {
       },
 
       animation: {
-        'match-card': 'match-card 0.75s ease-in-out',
-        'error-card': 'error-card 0.75s ease-in-out',
+        'match-card': 'match-card 0.65s ease-in-out',
+        'error-card': 'error-card 0.5s ease-in-out',
         heartbeat: 'heartbeat 0.85s ease-in-out infinite',
       },
     },
