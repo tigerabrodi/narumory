@@ -47,12 +47,12 @@ export default function AuthPage() {
           <Tabs value={value} className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger asChild value="login">
-                <Link to={generatePath(ROUTES.login)} prefetch="render">
+                <Link to={generatePath(ROUTES.login)} prefetch="intent">
                   Login
                 </Link>
               </TabsTrigger>
               <TabsTrigger asChild value="register">
-                <Link to={generatePath(ROUTES.register)} prefetch="render">
+                <Link to={generatePath(ROUTES.register)} prefetch="intent">
                   Register
                 </Link>
               </TabsTrigger>
