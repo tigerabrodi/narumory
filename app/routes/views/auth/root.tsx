@@ -8,11 +8,42 @@ import { TAB_VALUES } from './lib/constants'
 
 export function meta() {
   return [
-    { title: 'Narumory' },
+    { title: 'Narumory - Naruto Memory Game' },
     {
       name: 'description',
-      content: 'Sign up to play the Naruto Memory Game',
+      content:
+        'Challenge your memory with Naruto characters in this multiplayer memory game. Create or join rooms and play with friends!',
     },
+    {
+      name: 'keywords',
+      content:
+        'naruto, memory game, multiplayer game, anime games, ninja games, browser game, card matching',
+    },
+
+    // Open Graph
+    { property: 'og:type', content: 'website' },
+    { property: 'og:title', content: 'Narumory - Naruto Memory Game' },
+    {
+      property: 'og:description',
+      content:
+        'Challenge your memory with Naruto characters in this multiplayer memory game. Create or join rooms and play with friends!',
+    },
+    { property: 'og:image', content: '/assets/meta.png' },
+    { property: 'og:url', content: 'https://narumory.com' },
+
+    // Twitter
+    { name: 'twitter:card', content: 'summary_large_image' },
+    { name: 'twitter:title', content: 'Narumory - Naruto Memory Game' },
+    {
+      name: 'twitter:description',
+      content:
+        'Challenge your memory with Naruto characters in this multiplayer memory game. Create or join rooms and play with friends!',
+    },
+    { name: 'twitter:image', content: '/assets/meta.png' },
+
+    // Additional meta tags for better SEO
+    { name: 'theme-color', content: '#FF8C00' }, // A Naruto-themed orange color
+    { name: 'viewport', content: 'width=device-width, initial-scale=1' },
   ]
 }
 

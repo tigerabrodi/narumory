@@ -25,12 +25,33 @@ import { getRoomByOwnerId, getRoomByRoomCode } from './lib/db-queries'
 import { RoomDetailProvider, useRoomDetail } from './lib/room-context'
 
 export function meta({ data }: Route.MetaArgs) {
+  const title = `${data.roomName} - Narumory`
+  const description = `Join ${data.roomName} on Narumory and play the Naruto Memory Game. Test your memory skills and compete with friends!`
+
   return [
-    { title: `${data.roomName} - Narumory` },
+    { title },
+    { name: 'description', content: description },
     {
-      name: 'description',
-      content: `Join ${data.roomName} on Narumory and play the Naruto Memory Game`,
+      name: 'keywords',
+      content:
+        'naruto game, memory match, multiplayer room, anime gaming, ninja memory game',
     },
+
+    // Open Graph
+    { property: 'og:type', content: 'game' },
+    { property: 'og:title', content: title },
+    { property: 'og:description', content: description },
+    { property: 'og:image', content: '/assets/meta.png' },
+    {
+      property: 'og:url',
+      content: `https://narumory.com/rooms/${data.roomCode}`,
+    },
+
+    // Twitter
+    { name: 'twitter:card', content: 'summary_large_image' },
+    { name: 'twitter:title', content: title },
+    { name: 'twitter:description', content: description },
+    { name: 'twitter:image', content: '/assets/meta.png' },
   ]
 }
 
