@@ -12,7 +12,7 @@ export function meta() {
     {
       name: 'description',
       content:
-        'Challenge your memory with Naruto characters in this multiplayer memory game. Create or join rooms and play with friends!',
+        'Challenge your memory with Naruto characters in this multiplayer memory game. Join rooms and play with friends!',
     },
     {
       name: 'keywords',
@@ -26,7 +26,7 @@ export function meta() {
     {
       property: 'og:description',
       content:
-        'Challenge your memory with Naruto characters in this multiplayer memory game. Create or join rooms and play with friends!',
+        'Challenge your memory with Naruto characters in this multiplayer memory game. Join rooms and play with friends!',
     },
     { property: 'og:image', content: '/assets/meta.png' },
     { property: 'og:url', content: 'https://narumory.com' },
@@ -37,7 +37,7 @@ export function meta() {
     {
       name: 'twitter:description',
       content:
-        'Challenge your memory with Naruto characters in this multiplayer memory game. Create or join rooms and play with friends!',
+        'Challenge your memory with Naruto characters in this multiplayer memory game. Join rooms and play with friends!',
     },
     { name: 'twitter:image', content: '/assets/meta.png' },
 
