@@ -42,6 +42,7 @@ export function GameGrid({ className, ...props }: GameGridProps) {
         <FlipCard
           key={card.id}
           onClick={() => handleCardClick(card.id)}
+             disabled={card.isMatched ||  card.id === firstSelectedCardId}
           isFlipped={
             card.isMatched ||
             card.id === firstSelectedCardId ||
