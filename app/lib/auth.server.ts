@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client-generated'
+import type { User } from '@prisma/client-generated'
 import {
   createCookieSessionStorage,
   generatePath,
@@ -42,7 +42,7 @@ type AuthResponse =
     }
   | {
       type: 'result'
-      user: Prisma.UserGetPayload<null>
+      user: User
     }
 
 export async function requireAuth({
