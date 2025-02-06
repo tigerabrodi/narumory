@@ -15,6 +15,8 @@ I love online games that are quick and easy to play online. Especially ones with
 
 I enjoy playing such games with friends and co-workers. This is the first multiplayer one that I've built, I got more to come.
 
+some readme
+
 ## Tech stack 💻
 
 - [Liveblocks](https://liveblocks.io/) for multiplayer
